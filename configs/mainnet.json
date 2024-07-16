@@ -1,5 +1,5 @@
 {
-    "arbContract": "0xchangethis",
+    "arbContract": "0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94",
     "routers": [
       { "dex": "UniswapV2Router02", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" },
       { "dex": "SushiSwapV2Router02", "address": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F" },
@@ -7,11 +7,11 @@
     ],
     "baseAssets": [
       { "sym": "weth","address": "0xchangethis" },
-      { "sym": "USD Coin iCAN", "address": "0xchangethis" },
-      { "sym": "BTC iCAN", "address": "0xchangethis" }
+      { "sym": "USD Coin iCAN", "address": "0xa9efDEf197130B945462163a0B852019BA529a66" },
+      { "sym": "BTC iCAN", "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21" }
     ],
     "tokens": [
-      { "sym": "USD Coin iCAN", "address": "0xchangethis" },
-      { "sym": "BTC iCAN", "address": "0xchangethis" }
+      { "sym": "USD Coin iCAN", "address": "0xa9efDEf197130B945462163a0B852019BA529a66" },
+      { "sym": "BTC iCAN", "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21" }
     ]
 }
