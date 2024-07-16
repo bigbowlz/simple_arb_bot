@@ -1,0 +1,17 @@
+/contract_factory/node_modules
+.env
+
+# Hardhat files
+/contract_factory/cache
+/contract_factory/artifacts
+
+# TypeChain files
+/contract_factory/typechain
+/contract_factory/typechain-types
+
+# solidity-coverage files
+/contract_factory/coverage
+/contract_factory/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+/contract_factory/ignition/deployments/chain-31337

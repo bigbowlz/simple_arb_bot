@@ -1,0 +1,196 @@
+from web3 import Web3
+import json
+import requests
+import os
+import argparse
+from dotenv import load_dotenv
+
+'''
+populate_routes.py
+
+Populates routes in mainnet.json by permutating the combination of routers and tokens, 
+and checking if there's a viable trade route on-chain.
+
+Author: ILnaw
+Version: 0.0.1
+'''
+def setup():
+# Connect to a mainnet node.
+    node_url = "https://eth.llamarpc.com"
+    web3 = Web3(Web3.HTTPProvider(node_url))
+
+    if not web3.is_connected():
+        raise Exception("Unable to connect to mainnet")
+    else:
+        print("Connected to mainnet")
+        
+    #Convert JSON file into a Python dictionary
+    with open("configs/mainnet.json", "r") as file:
+        data = json.load(file)
+    print(data)
+    
+    # Load environment variables from .env file
+    env_path = '../.env' 
+    load_dotenv(env_path)
+
+    # Etherscan API URL and your API key from the environment variables
+    api_url = "https://api.etherscan.io/api"
+    api_key = os.getenv("ETHERSCAN_API_KEY")
+
+    return web3, data, api_key, api_url
+
+def populate_ABIs(data, api_key, api_url):
+    '''
+    Populates ABI files for the router contracts in mainnet.json, 
+    and store ABI files in the configs directory.
+
+    Param:
+    data: Python dictionary format of the network config JSON file.
+    '''
+    for router in data["routers"]:
+        create_contract_ABI(router, api_key, api_url)
+    
+def create_contract_ABI(dex_contract, api_key, api_url):
+    '''
+    Writes ABI of the contract to a JSON file to store in the configs directory.
+    
+    Param:
+    dex_contract (dict): consists of the key "dex" of a string value, and the key "address" of a string value. 
+    api_key: API key to a block explorer.
+    api_url: API url to a block explorer.
+    '''
+    #API parameters
+    params = {
+        "module": "contract",
+        "action": "getabi",
+        "address": dex_contract["address"],
+        "apikey": api_key
+    }
+
+    # Fetch the contract ABI
+    response = requests.get(api_url, params=params)
+    abi = response.json().get("result")
+
+    if abi:
+    # Save the ABI to a JSON file
+        with open('../configs/' + dex_contract["dex"] + '_abi.json', 'w') as abi_file:
+            json.dump(json.loads(abi), abi_file, indent=4)
+        print("ABI saved to " + '../configs/' + dex_contract["dex"] + '_abi.json')
+    else:
+        print("Failed to fetch ABI")
+
+def populate_routes(data, web3):
+    '''
+    Populates routes in mainnet.json by permutating the combination of routers and tokens, 
+    and checking if there's a viable trade route on-chain.
+
+    Param:
+    data: Python dictionary format of the network config JSON file.
+    '''
+    route = {}
+
+    # Permutate routers and tokens
+    for i in range(len(data["routers"])-1):
+        for j in range(i+1, len(data["routers"])):
+            for m in range(len(data["tokens"])-1):
+                for n in range(m+1, len(data["tokens"])):
+                    router1_name = data["routers"][i]["dex"]
+                    router1_address = data["routers"][i]["address"]
+                    router2_name = data["routers"][j]["dex"]
+                    router2_address = data["routers"][j]["address"]
+                    token1_address = data["tokens"][m]["address"]
+                    token2_address = data["tokens"][n]["address"]
+
+                    # if route is valid, add route to the json file
+                    if check_route(router1_name, router1_address, router2_name, router2_address, token1_address, token2_address, web3):
+                        route["router1"] = router1_address
+                        route["router2"] = router2_address
+                        route["token1"] = token1_address
+                        route["token2"] = token2_address
+                        data["routes"].append(route)
+
+def check_route(router1_name, router1_address, router2_name, router2_address, token1_address, token2_address, web3):
+    '''
+    Checks if a route is valid.
+
+    Params:
+    router1_name: the string value of the name of router1.
+    router1_address: the string value of the address of the router1 contract.
+    router2_name: the string value of the name of router2.
+    router2_address: the string value of the address of the router2 contract.
+    token1_address: the string value of the address of the token1 contract.
+    token2_address: the string value of the address of the token2 contract.
+    web3: an instance of the Web3 class from the web3.py library.
+    '''
+
+    # Load router1 and router2 ABI
+    with open('../configs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
+        router1_abi = json.load(router1_abi_file)
+    with open('../configs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
+        router2_abi = json.load(router2_abi_file)
+
+    # Create contract instances for the routers
+    router1 = web3.eth.contract(address=router1_address, abi=router1_abi)
+    router2 = web3.eth.contract(address=router2_address, abi=router2_abi)
+
+    # Check if the route is valid on both routers
+    is_valid_on_router1 = is_valid_pair(router1, token1_address, token2_address)
+    is_valid_on_router2 = is_valid_pair(router2, token1_address, token2_address)
+
+    print(f"Route valid on Router 1: {is_valid_on_router1}")
+    print(f"Route valid on Router 2: {is_valid_on_router2}")
+
+    if is_valid_on_router1 and is_valid_on_router2:
+        return True
+    
+    return False
+
+def is_valid_pair(router, token1, token2):
+    '''
+    Checks if a token pair is valid on a given router.
+
+    Params:
+    router: web3.py contract instance for a router
+    token1: address of token1 
+    token2: address of token2
+    '''
+    try:
+        token1_decimals = get_token_decimals(token1, web3)
+        amount_in = 10 ** token1_decimals  # Try to trade with 1 amount of token1
+        amounts_out = router.functions.getAmountsOut(amount_in, [token1, token2]).call()
+        return amounts_out is not None and len(amounts_out) > 1
+    except Exception as e:
+        print(f"Error checking pair {token1} -> {token2}: {e}")
+        return False
+
+def get_token_decimals(token_address, web3):
+    '''
+    Get the number of decimals for a token.
+
+    Params:
+    token_address: the address of the token contract.
+    web3: an instance of the Web3 class from the web3.py library.
+    '''
+    erc20_abi = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}]'
+
+    token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
+    return token_contract.functions.decimals().call()
+
+if __name__ == "__main__":
+    web3, data, api_key, api_url = setup()
+
+    # create the command-line parser
+    parser = argparse.ArgumentParser(description="Begin arbitrage config setup process...")
+
+    # add arguments
+    parser.add_argument('--ABI', help='Populate ABI files for the router contracts in mainnet.json.')
+    parser.add_argument('--route', help='Populate viable trade routes for two tokens on two dexes in mainnet.json.')
+
+    # parse the arguments
+    args = parser.parse_args()
+
+    # access the arguments
+    if args.ABI:
+        populate_ABIs(data, api_key, api_url)
+    if args.route:
+        populate_routes(data, web3)
