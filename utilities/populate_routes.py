@@ -25,9 +25,9 @@ def setup():
         print("Connected to mainnet")
         
     #Convert JSON file into a Python dictionary
-    with open("configs/mainnet.json", "r") as file:
+    with open("../configs/mainnet.json", "r") as file:
         data = json.load(file)
-    print(data)
+    print("Data read from json file.")
     
     # Load environment variables from .env file
     env_path = '../.env' 
@@ -73,9 +73,9 @@ def create_contract_ABI(dex_contract, api_key, api_url):
 
     if abi:
     # Save the ABI to a JSON file
-        with open('../configs/' + dex_contract["dex"] + '_abi.json', 'w') as abi_file:
+        with open('../configs/router_ABIs/' + dex_contract["dex"] + '_abi.json', 'w') as abi_file:
             json.dump(json.loads(abi), abi_file, indent=4)
-        print("ABI saved to " + '../configs/' + dex_contract["dex"] + '_abi.json')
+        print("ABI saved to " + '../configs/router_ABIs/' + dex_contract["dex"] + '_abi.json')
     else:
         print("Failed to fetch ABI")
 
@@ -180,11 +180,11 @@ if __name__ == "__main__":
     web3, data, api_key, api_url = setup()
 
     # create the command-line parser
-    parser = argparse.ArgumentParser(description="Begin arbitrage config setup process...")
+    parser = argparse.ArgumentParser(description="Completed arbitrage config setup process, parsing arguments...")
 
     # add arguments
-    parser.add_argument('--ABI', help='Populate ABI files for the router contracts in mainnet.json.')
-    parser.add_argument('--route', help='Populate viable trade routes for two tokens on two dexes in mainnet.json.')
+    parser.add_argument('--ABI', action='store_true', help='Populate ABI files for the router contracts in mainnet.json.')
+    parser.add_argument('--route', action='store_true', help='Populate viable trade routes for two tokens on two dexes in mainnet.json.')
 
     # parse the arguments
     args = parser.parse_args()
