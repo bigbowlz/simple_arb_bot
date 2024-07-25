@@ -21,7 +21,7 @@ On-chain exchanges are decentralized platforms that facilitate the trading of cr
    
    Key features of a CLOB exchange include:
 	- **Order Book**: A ledger where all buy and sell orders are recorded.
-	  ![ETH-USD Perpetual's Orderbook on dYdX Exchange](../images/Orderbook.png)
+	  ![ETH-USD Perpetual's Orderbook on dYdX Exchange](images/Orderbook.png)
 							<p style="text-align:center;">ETH-USD Perpetual's Orderbook on dYdX Exchange</p>
 	
 	- **Order Matching**: Orders are matched based on price and time priority.
@@ -35,11 +35,11 @@ On-chain exchanges are decentralized platforms that facilitate the trading of cr
 
    Key features of an AMM exchange include:
 	- **Liquidity Pools**: Pools of tokens provided by liquidity providers (LPs). Each liquidity pool is a trading venue for a pair of tokens.
-	  ![Concept of an AMM pool by Uniswap](../images/AMM_pool_by_Uniswap.png)
+	  ![Concept of an AMM pool by Uniswap](images/AMM_pool_by_Uniswap.png)
 					<p style="text-align:center;">Concept of an AMM pool by Uniswap</p>
 	
 	- **Pricing Algorithm**: Prices are determined by algorithms like the constant product formula (x * y = k).
-		![Concept of an AMM Swap by Uniswap](../images/AMM_Swap_by_Uniswap.png)
+		![Concept of an AMM Swap by Uniswap](images/AMM_Swap_by_Uniswap.png)
 			<p style="text-align:center;">Concept of an AMM Swap by Uniswap</p>
 	
 	- **Liquidity Providers**: Users provide liquidity to pools and earn fees.

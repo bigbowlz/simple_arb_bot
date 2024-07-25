@@ -1,7 +1,7 @@
 # Simple Arbitrage Bot Architecture Design 
 
 ## UML
-![Simple Arbitrage Bot Architecture Design UML](../images/Simple_Arb_Bot_Architecture_Design.png)
+![Simple Arbitrage Bot Architecture Design UML](images/Simple_Arb_Bot_Architecture_Design.png)
 
 ## Modules
 ### Configs
