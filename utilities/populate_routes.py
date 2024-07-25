@@ -11,6 +11,11 @@ populate_routes.py
 Populates routes in mainnet.json by permutating the combination of routers and tokens, 
 and checking if there's a viable trade route on-chain.
 
+Command-line arguments:
+  -h, --help  show this help message and exit
+  --ABI       Populate ABI files for the router contracts in mainnet.json.
+  --route     Populate viable trade routes for two tokens on two dexes in mainnet.json.
+
 Author: ILnaw
 Version: 0.0.1
 '''
@@ -42,7 +47,7 @@ def setup():
 def populate_ABIs(data, api_key, api_url):
     '''
     Populates ABI files for the router contracts in mainnet.json, 
-    and store ABI files in the configs directory.
+    and store ABI files in the configs/router_AIBs directory.
 
     Param:
     data: Python dictionary format of the network config JSON file.
@@ -52,7 +57,7 @@ def populate_ABIs(data, api_key, api_url):
     
 def create_contract_ABI(dex_contract, api_key, api_url):
     '''
-    Writes ABI of the contract to a JSON file to store in the configs directory.
+    Writes ABI of the contract to a JSON file to store in the configs/router_AIBs directory.
     
     Param:
     dex_contract (dict): consists of the key "dex" of a string value, and the key "address" of a string value. 
@@ -124,9 +129,9 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     '''
 
     # Load router1 and router2 ABI
-    with open('../configs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
+    with open('../configs/router_ABIs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
         router1_abi = json.load(router1_abi_file)
-    with open('../configs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
+    with open('../configs/router_ABIs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
         router2_abi = json.load(router2_abi_file)
 
     # Create contract instances for the routers
