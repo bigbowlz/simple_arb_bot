@@ -21,7 +21,7 @@ Version: 0.0.1
 '''
 def setup():
 # Connect to a mainnet node.
-    node_url = "https://eth.llamarpc.com"
+    node_url = "http://127.0.0.1:8545"
     web3 = Web3(Web3.HTTPProvider(node_url))
 
     if not web3.is_connected():
@@ -30,12 +30,12 @@ def setup():
         print("Connected to mainnet")
         
     #Convert JSON file into a Python dictionary
-    with open("../configs/mainnet.json", "r") as file:
+    with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
-    print("Data read from json file.")
+        print("Data read from json file.")
     
     # Load environment variables from .env file
-    env_path = '../.env' 
+    env_path = '.env' 
     load_dotenv(env_path)
 
     # Etherscan API URL and your API key from the environment variables
@@ -78,9 +78,9 @@ def create_contract_ABI(dex_contract, api_key, api_url):
 
     if abi:
     # Save the ABI to a JSON file
-        with open('../configs/router_ABIs/' + dex_contract["dex"] + '_abi.json', 'w') as abi_file:
+        with open('configs/router_ABIs/' + dex_contract["dex"] + '_abi.json', 'w') as abi_file:
             json.dump(json.loads(abi), abi_file, indent=4)
-        print("ABI saved to " + '../configs/router_ABIs/' + dex_contract["dex"] + '_abi.json')
+        print("ABI saved to " + 'configs/router_ABIs/' + dex_contract["dex"] + '_abi.json')
     else:
         print("Failed to fetch ABI")
 
@@ -129,9 +129,9 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     '''
 
     # Load router1 and router2 ABI
-    with open('../configs/router_ABIs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
+    with open('configs/router_ABIs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
         router1_abi = json.load(router1_abi_file)
-    with open('../configs/router_ABIs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
+    with open('configs/router_ABIs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
         router2_abi = json.load(router2_abi_file)
 
     # Create contract instances for the routers
