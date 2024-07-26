@@ -25,9 +25,9 @@ def setup():
     web3 = Web3(Web3.HTTPProvider(node_url))
 
     if not web3.is_connected():
-        raise Exception("Unable to connect to mainnet")
+        raise Exception("Unable to connect to localhost")
     else:
-        print("Connected to mainnet")
+        print("Connected to localhost")
         
     #Convert JSON file into a Python dictionary
     with open("configs/mainnet.json", "r") as file:
@@ -178,7 +178,7 @@ def get_token_decimals(token_address, web3):
     '''
     erc20_abi = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
-    token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
+    token_contract = web3.eth.contract(address=Web3.to_checksum_address(token_address), abi=erc20_abi)
     return token_contract.functions.decimals().call()
 
 if __name__ == "__main__":
