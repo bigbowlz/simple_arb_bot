@@ -5,6 +5,7 @@
 # Hardhat files
 /contract_factory/cache
 /contract_factory/artifacts
+cache/
 
 # TypeChain files
 /contract_factory/typechain
@@ -18,6 +19,6 @@
 /contract_factory/ignition/deployments/chain-31337
 node_modules
 
+# Some note-taking documentation
 docs/token lists.md
 docs/uniswap_token_list.json
-
