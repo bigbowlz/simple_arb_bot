@@ -44,6 +44,25 @@ def setup():
 
     return web3, data, api_key, api_url
 
+def checksum():
+    '''
+    Converts contract addresses to the correct checksum format.
+    '''
+    for router in data["routers"]:
+        router_address = router["address"]
+        router["address"] = Web3.to_checksum_address(router_address)
+    print("All router addresses updated to checksum addresses.")
+
+    for baseAsset in data["baseAssets"]:
+        baseAsset_address = baseAsset["address"]
+        baseAsset["address"] = Web3.to_checksum_address(baseAsset_address)
+    print("All baseAsset addresses updated to checksum addresses.")
+
+    for token in data["tokens"]:
+        token_address = token["address"]
+        token["address"] = Web3.to_checksum_address(token_address)
+    print("All token addresses updated to checksum addresses.")
+
 def populate_ABIs(data, api_key, api_url):
     '''
     Populates ABI files for the router contracts in mainnet.json, 
@@ -161,6 +180,9 @@ def is_valid_pair(router, token1, token2):
     '''
     try:
         token1_decimals = get_token_decimals(token1, web3)
+        if token1_decimals is None:
+            return False
+        
         amount_in = 10 ** token1_decimals  # Try to trade with 1 amount of token1
         amounts_out = router.functions.getAmountsOut(amount_in, [token1, token2]).call()
         return amounts_out is not None and len(amounts_out) > 1
@@ -178,7 +200,7 @@ def get_token_decimals(token_address, web3):
     '''
     erc20_abi = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
-    token_contract = web3.eth.contract(address=Web3.to_checksum_address(token_address), abi=erc20_abi)
+    token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
     return token_contract.functions.decimals().call()
 
 if __name__ == "__main__":
@@ -190,6 +212,7 @@ if __name__ == "__main__":
     # add arguments
     parser.add_argument('--ABI', action='store_true', help='Populate ABI files for the router contracts in mainnet.json.')
     parser.add_argument('--route', action='store_true', help='Populate viable trade routes for two tokens on two dexes in mainnet.json.')
+    parser.add_argument('--checksum', action='store_true', help='Convert addresses in mainnet.json to checksum format.')
 
     # parse the arguments
     args = parser.parse_args()
@@ -199,3 +222,5 @@ if __name__ == "__main__":
         populate_ABIs(data, api_key, api_url)
     if args.route:
         populate_routes(data, web3)
+    if args.checksum:
+        checksum()

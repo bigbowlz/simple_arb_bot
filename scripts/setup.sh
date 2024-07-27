@@ -21,6 +21,7 @@ if [ $? -eq 0 ]; then
     current_dir=$(pwd)
 
     # Define the commands as variables
+    checksum="python utilities/populate_routes.py --checksum"
     abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap, PancakeSwap, and SushiSwap)
     route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
     compile="npx hardhat compile" # Compile contracts 
@@ -29,7 +30,7 @@ if [ $? -eq 0 ]; then
 
     # Open a new terminal window and run the commands
     # osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${abi} && ${route} && ${compile} && ${deploy} && ${pool}\""
-    osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${compile} && ${deploy} && ${abi}\""
+    osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${abi}\""
 
 else
     echo "Node initialization failed for the Ethereum fork."
