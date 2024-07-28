@@ -111,7 +111,8 @@ def populate_routes(data, web3):
     Param:
     data: Python dictionary format of the network config JSON file.
     '''
-    route = {}
+    # Remove all existing routes
+    data["routes"] = []
 
     # Permutate routers and tokens
     for i in range(len(data["routers"])-1):
@@ -127,11 +128,18 @@ def populate_routes(data, web3):
 
                     # if route is valid, add route to the json file
                     if check_route(router1_name, router1_address, router2_name, router2_address, token1_address, token2_address, web3):
+                        route = {}
                         route["router1"] = router1_address
                         route["router2"] = router2_address
                         route["token1"] = token1_address
                         route["token2"] = token2_address
                         data["routes"].append(route)
+    
+    # Write the updated data back to the JSON file
+    with open("configs/mainnet.json", "w") as file:
+        json.dump(data, file, indent=4)
+        print("All possible routes checked and written to json.")
+                            
 
 def check_route(router1_name, router1_address, router2_name, router2_address, token1_address, token2_address, web3):
     '''
@@ -161,12 +169,10 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     is_valid_on_router1 = is_valid_pair(router1, token1_address, token2_address, web3)
     is_valid_on_router2 = is_valid_pair(router2, token1_address, token2_address, web3)
 
-    print(f"Route valid on Router 1: {is_valid_on_router1}")
-    print(f"Route valid on Router 2: {is_valid_on_router2}")
-
     if is_valid_on_router1 and is_valid_on_router2:
+        print(f"Route valid on {router1_name} and {router2_name}")
+        print(f"..for {token1_address} and {token2_address}")
         return True
-    
     return False
 
 def is_valid_pair(router, token1, token2, web3):
@@ -187,7 +193,7 @@ def is_valid_pair(router, token1, token2, web3):
         amounts_out = router.functions.getAmountsOut(amount_in, [token1, token2]).call()
         return amounts_out is not None and len(amounts_out) > 1
     except Exception as e:
-        print(f"Error checking pair {token1} -> {token2}: {e}")
+        print(f"Invalid pair {token1}->{token2}")
         return False
 
 def get_token_decimals(token_address, web3):
@@ -224,8 +230,8 @@ if __name__ == "__main__":
         populate_routes(data, web3)
     if args.checksum:
         checksum(web3, data)
-
         # Write the updated data back to the JSON file
-    with open("configs/mainnet.json", "w") as file:
-        json.dump(data, file, indent=4)
-        print("Updated routes and addresses written to json file.")
+        with open("configs/mainnet.json", "w") as file:
+            json.dump(data, file, indent=4)
+            print("Updated routes and addresses written to json file.")
+
