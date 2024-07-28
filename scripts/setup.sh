@@ -23,21 +23,29 @@ if lsof -i:$PORT; then
 
     # Define the commands as variables
     checksum="python utilities/populate_routes.py --checksum"
-    abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap, PancakeSwap, and SushiSwap)
-    route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
     compile="npx hardhat compile" # Compile contracts 
     deploy="npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost" #Deploy the arbitrage contract and test tokens USDC iCAN and BTC iCAN
     pool="npx hardhat run scripts/approveTokenAndLP.js" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
-    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${abi}"
+    abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap, PancakeSwap, and SushiSwap)
+    route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
+    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${pool} && ${abi} && ${route}"
 
     # Open a new shell and run the commands
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
-        # osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${abi} && ${route} && ${compile} && ${deploy} && ${pool}\""\
         osascript -e "tell application \"Terminal\" to do script \"${commands}\""
     elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
         # Windows with WSL
-        cmd.exe /c start wsl.exe bash -c "\"${commands}\""
+        cmd.exe /c start wsl.exe bash -c "cd ${current_dir} && \
+            python3 utilities/populate_routes.py --checksum && \
+            npx hardhat compile && \
+            npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && \
+            npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && \
+            npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost && \
+            npx hardhat run scripts/approveTokenAndLP.js && \
+            python3 utilities/populate_routes.py --ABI && \
+            python3 utilities/populate_routes.py --route"
+
     else
         echo "Unsupported OS"
     fi
