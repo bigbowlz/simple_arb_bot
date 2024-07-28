@@ -7,10 +7,10 @@ import os
 from web3 import Web3
 from utilities.populate_routes import (
     setup,
-    populate_routes,
-    check_route,
+    get_token_decimals,
     is_valid_pair,
-    get_token_decimals
+    populate_routes,
+    check_route
     )
 
 web3, data, api_key, api_url = setup()
@@ -18,14 +18,20 @@ web3, data, api_key, api_url = setup()
 uniswap_v2_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
 sushiswap_v2_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
 pancake_v2_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
-USDC_address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-WBTC_address = "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
 
-USDC_iCAN_address = 0xa9efDEf197130B945462163a0B852019BA529a66
-USDC_iCAN_decimal = 6
-BTC_iCAN_address = 0x49AeF2C4005Bf572665b09014A563B5b9E46Df21
-BTC_iCAN_decimal = 8
-SHIB_address = 0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE
+USDC_address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+USDC_decimal = 6
+
+WBTC_address = "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+WBTC_decimal = 8
+
+MATIC_address = "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"
+MATIC_decimal = 18
+
+LINK_address = "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+LINK_decimal = 18
+
+SHIB_address = "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
 SHIB_decimal = 18
 
 # Load router ABI
@@ -42,14 +48,17 @@ sushiswap_v2 = web3.eth.contract(address=sushiswap_v2_address, abi=sushiswap_v2_
 pancake_v2 = web3.eth.contract(address=pancake_v2_address, abi=pancake_v2_abi)
 
 def test_get_token_decimals():
-    assert USDC_iCAN_decimal == get_token_decimals(USDC_iCAN_address, web3)
-    assert BTC_iCAN_decimal == get_token_decimals(BTC_iCAN_address, web3)
+    assert MATIC_decimal == get_token_decimals(MATIC_address, web3)
+    assert LINK_decimal == get_token_decimals(LINK_address, web3)
     assert SHIB_decimal == get_token_decimals(SHIB_address, web3)
+    assert USDC_decimal == get_token_decimals(USDC_address, web3)
+    assert WBTC_decimal == get_token_decimals(WBTC_address, web3)
+
 
 def test_is_valid_pair():
-    #assert is_valid_pair(uniswap_v2, USDC_address, WBTC_address)
-    assert is_valid_pair(sushiswap_v2, WBTC_address, USDC_address)
-    #assert is_valid_pair(pancake_v2, USDC_address, WBTC_address)
+    assert is_valid_pair(uniswap_v2, WBTC_address, USDC_address, web3)
+    assert is_valid_pair(pancake_v2, USDC_address, WBTC_address, web3)
+    assert not is_valid_pair(sushiswap_v2, USDC_address, WBTC_address, web3)
 
 '''def test_check_route():
 '''

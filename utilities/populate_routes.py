@@ -169,7 +169,7 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     
     return False
 
-def is_valid_pair(router, token1, token2):
+def is_valid_pair(router, token1, token2, web3):
     '''
     Checks if a token pair is valid on a given router.
 
@@ -183,7 +183,7 @@ def is_valid_pair(router, token1, token2):
         if token1_decimals is None:
             return False
         
-        amount_in = 10 ** token1_decimals  # Try to trade with 1 amount of token1
+        amount_in = 100 ** token1_decimals  # Try to trade with 10 amount of token1
         amounts_out = router.functions.getAmountsOut(amount_in, [token1, token2]).call()
         return amounts_out is not None and len(amounts_out) > 1
     except Exception as e:
@@ -195,7 +195,7 @@ def get_token_decimals(token_address, web3):
     Get the number of decimals for a token.
 
     Params:
-    token_address: the address of the token contract.
+    token_address: the string address of the token contract.
     web3: an instance of the Web3 class from the web3.py library.
     '''
     erc20_abi = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}]'
