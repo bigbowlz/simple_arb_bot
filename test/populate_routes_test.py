@@ -10,7 +10,6 @@ from utilities.populate_routes import (
     get_token_decimals,
     is_valid_pair,
     check_route,
-    populate_routes
     )
 
 web3, data, api_key, api_url = setup()
@@ -78,35 +77,6 @@ def test_check_route():
         "UniswapV2Router02", uniswap_v2_address, 
         MATIC_address, USDC_address, web3
         )    
-
-"""@patch('populate_routes.check_route', return_value=True)
-def test_populate_routes(mock_check_route):
-    data = {
-        "routers": [
-            {"dex": "uniswap", "address": "0x123"},
-            {"dex": "sushiswap", "address": "0x456"}
-        ],
-        "tokens": [
-            {"address": "0xAAA"},
-            {"address": "0xBBB"}
-        ],
-        "routes": []
-    }
-    web3 = MagicMock()
-
-    populate_routes(data, web3)
-
-    assert len(data["routes"]) == 1
-    assert data["routes"][0] == {
-        "router1": "0x123",
-        "router2": "0x456",
-        "token1": "0xAAA",
-        "token2": "0xBBB"
-    }
-"""
-
-
-
 
 if __name__ == "__main__":
     pytest.main()
