@@ -44,23 +44,23 @@ def setup():
 
     return web3, data, api_key, api_url
 
-def checksum():
+def checksum(web3, data):
     '''
     Converts contract addresses to the correct checksum format.
     '''
     for router in data["routers"]:
         router_address = router["address"]
-        router["address"] = Web3.to_checksum_address(router_address)
+        router["address"] = web3.to_checksum_address(router_address)
     print("All router addresses updated to checksum addresses.")
 
     for baseAsset in data["baseAssets"]:
         baseAsset_address = baseAsset["address"]
-        baseAsset["address"] = Web3.to_checksum_address(baseAsset_address)
+        baseAsset["address"] = web3.to_checksum_address(baseAsset_address)
     print("All baseAsset addresses updated to checksum addresses.")
 
     for token in data["tokens"]:
         token_address = token["address"]
-        token["address"] = Web3.to_checksum_address(token_address)
+        token["address"] = web3.to_checksum_address(token_address)
     print("All token addresses updated to checksum addresses.")
 
 def populate_ABIs(data, api_key, api_url):
@@ -223,4 +223,9 @@ if __name__ == "__main__":
     if args.route:
         populate_routes(data, web3)
     if args.checksum:
-        checksum()
+        checksum(web3, data)
+
+        # Write the updated data back to the JSON file
+    with open("configs/mainnet.json", "w") as file:
+        json.dump(data, file, indent=4)
+        print("Updated routes and addresses written to json file.")
