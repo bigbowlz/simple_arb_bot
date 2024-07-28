@@ -16,7 +16,8 @@ npx hardhat node &
 # Check if the node started successfully
 sleep 5  # Give it some time to start
 
-if [ $? -eq 0 ]; then
+# Check if the port is now in use
+if lsof -i:$PORT; then
     # Get the current working directory
     current_dir=$(pwd)
 
@@ -27,11 +28,19 @@ if [ $? -eq 0 ]; then
     compile="npx hardhat compile" # Compile contracts 
     deploy="npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost" #Deploy the arbitrage contract and test tokens USDC iCAN and BTC iCAN
     pool="npx hardhat run scripts/approveTokenAndLP.js" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
+    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${abi}"
 
-    # Open a new terminal window and run the commands
-    # osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${abi} && ${route} && ${compile} && ${deploy} && ${pool}\""
-    osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${abi}\""
-
+    # Open a new shell and run the commands
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        # osascript -e "tell application \"Terminal\" to do script \"cd ${current_dir} && ${abi} && ${route} && ${compile} && ${deploy} && ${pool}\""\
+        osascript -e "tell application \"Terminal\" to do script \"${commands}\""
+    elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+        # Windows with WSL
+        cmd.exe /c start wsl.exe bash -c "\"${commands}\""
+    else
+        echo "Unsupported OS"
+    fi
 else
     echo "Node initialization failed for the Ethereum fork."
 fi

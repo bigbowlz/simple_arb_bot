@@ -5,7 +5,8 @@ To host an Ethereum fork locally and deploy arbitrage contracts
 
     npm install --save-dev hardhat 
     npm install @nomicfoundation/hardhat-toolbox
-
+    npm install @nomicfoundation/hardhat-ethers@3.0.6
+    
 To connect to Ethereum using web3.py
 
     pip install web3

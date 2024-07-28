@@ -1,8 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config({ path: '.env' });
 require("@nomicfoundation/hardhat-ignition-ethers");
-require("@nomicfoundation/hardhat-verify");
-require("@nomiclabs/hardhat-ethers");
 
 const { vars } = require("hardhat/config");
 const ETHERSCAN_API_KEY = vars.get("ETHERSCAN_API_KEY");
