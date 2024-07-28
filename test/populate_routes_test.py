@@ -9,8 +9,8 @@ from utilities.populate_routes import (
     setup,
     get_token_decimals,
     is_valid_pair,
-    populate_routes,
-    check_route
+    check_route,
+    populate_routes
     )
 
 web3, data, api_key, api_url = setup()
@@ -33,6 +33,8 @@ LINK_decimal = 18
 
 SHIB_address = "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
 SHIB_decimal = 18
+
+USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
 
 # Load router ABI
 with open('configs/router_ABIs/UniswapV2Router02_abi.json', 'r') as uniswap_v2_abi_file:
@@ -60,8 +62,22 @@ def test_is_valid_pair():
     assert is_valid_pair(pancake_v2, USDC_address, WBTC_address, web3)
     assert not is_valid_pair(sushiswap_v2, USDC_address, WBTC_address, web3)
 
-'''def test_check_route():
-'''
+def test_check_route():
+    assert check_route(
+        "UniswapV2Router02", uniswap_v2_address, 
+        "PancakeRouter", pancake_v2_address, 
+        WBTC_address, USDC_address, web3
+        )
+    assert check_route(
+        "PancakeRouter", pancake_v2_address, 
+        "UniswapV2Router02", uniswap_v2_address, 
+        USDC_address, USDT_address, web3
+        )
+    assert check_route(
+        "SushiSwapV2Router02", sushiswap_v2_address, 
+        "UniswapV2Router02", uniswap_v2_address, 
+        MATIC_address, USDC_address, web3
+        )    
 
 """@patch('populate_routes.check_route', return_value=True)
 def test_populate_routes(mock_check_route):

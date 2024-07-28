@@ -158,8 +158,8 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     router2 = web3.eth.contract(address=router2_address, abi=router2_abi)
 
     # Check if the route is valid on both routers
-    is_valid_on_router1 = is_valid_pair(router1, token1_address, token2_address)
-    is_valid_on_router2 = is_valid_pair(router2, token1_address, token2_address)
+    is_valid_on_router1 = is_valid_pair(router1, token1_address, token2_address, web3)
+    is_valid_on_router2 = is_valid_pair(router2, token1_address, token2_address, web3)
 
     print(f"Route valid on Router 1: {is_valid_on_router1}")
     print(f"Route valid on Router 2: {is_valid_on_router2}")
