@@ -1,68 +1,238 @@
 {
     "arbContract": "0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94",
     "routers": [
-      { "dex": "UniswapV2Router02", "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D" },
-      { "dex": "SushiSwapV2Router02", "address": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F" },
-      { "dex": "PancakeRouter", "address": "0xEfF92A263d31888d860bD50809A8D171709b7b1c" }
+        {
+            "dex": "UniswapV2Router02",
+            "address": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+        },
+        {
+            "dex": "SushiSwapV2Router02",
+            "address": "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+        },
+        {
+            "dex": "PancakeRouter",
+            "address": "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+        }
     ],
     "baseAssets": [
-      { "sym": "weth","address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" },
-      { "sym": "USD Coin iCAN", "address": "0xa9efDEf197130B945462163a0B852019BA529a66" },
-      { "sym": "BTC iCAN", "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21" }
+        {
+            "sym": "weth",
+            "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        },
+        {
+            "sym": "USD Coin iCAN",
+            "address": "0xa9efDEf197130B945462163a0B852019BA529a66"
+        },
+        {
+            "sym": "BTC iCAN",
+            "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21"
+        }
     ],
     "tokens": [
-      { "sym": "USD Coin iCAN", "address": "0xa9efDEf197130B945462163a0B852019BA529a66" },
-      { "sym": "BTC iCAN", "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21" },
-      { "sym": "USDT", "address": "0xdac17f958d2ee523a2206206994597c13d831ec7" },
-      { "sym": "USDC", "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
-      { "sym": "WBTC", "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599" },
-      { "sym": "BNB", "address": "0xb8c77482e45f1f44de1745f52c74426c631bdd52" },
-      { "sym": "SHIB", "address": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE" },
-      { "sym": "DAI", "address": "0x6b175474e89094c44da98b954eedeac495271d0f" },
-      { "sym": "HEX", "address": "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39" },
-      { "sym": "stETH", "address": "0xae7ab96520de3a18e5e111b5eaab095312d7fe84" },
-      { "sym": "BUSD", "address": "0x4fabb145d64652a948d72533023f6e7a623c7c53" },
-      { "sym": "MATIC", "address": "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0" },
-      { "sym": "UNI", "address": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984" },
-      { "sym": "APE", "address": "0x4d224452801aced8b2f0aebe155379bb5d594381" },
-      { "sym": "LINK", "address": "0x514910771af9ca656af840dff83e8264ecf986ca" },
-      { "sym": "MANA", "address": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942" },
-      { "sym": "SAND", "address": "0x3845badade8e6dff049820680d1f14bd3903a5d0" },
-      { "sym": "AAVE", "address": "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9" },
-      { "sym": "CRV", "address": "0xd533a949740bb3306d119cc777fa900ba034cd52" },
-      { "sym": "SNX", "address": "0xc011a72400e58ecd99ee497cf89e3775d4bd732f" },
-      { "sym": "YFI", "address": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e" },
-      { "sym": "ENJ", "address": "0xf629cbd94d3791c9250152bd8dfbdf380e2a3b9c" },
-      { "sym": "MKR", "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2" },
-      { "sym": "COMP", "address": "0xc00e94cb662c3520282e6f5717214004a7f26888" },
-      { "sym": "BAT", "address": "0x0d8775f648430679a709e98d2b0cb6250d2887ef" },
-      { "sym": "BAL", "address": "0xba100000625a3754423978a60c9317c58a424e3d" },
-      { "sym": "ZRX", "address": "0xe41d2489571d322189246dafa5ebde1f4699f498" },
-      { "sym": "KNC", "address": "0xdd974d5c2e2928dea5f71b9825b8b646686bd200" },
-      { "sym": "REP", "address": "0x1985365e9f78359a9b6ad760e32412f4a445e862" },
-      { "sym": "LRC", "address": "0xbbbbca6a901c926f240b89eacb641d8aec7aeafd" },
-      { "sym": "MTA", "address": "0xa3bed4e1c75d00fa6f4e5e8e3fd2eb859a9a4d55" },
-      { "sym": "RPL", "address": "0xd33526068d116ce69f19a9ee46f0bd304f21a51f" },
-      { "sym": "OMG", "address": "0xd26114cd6ee289accf82350c8d8487fedb8a0c07" },
-      { "sym": "REN", "address": "0x408e41876cccdc0f92210600ef50372656052a38" },
-      { "sym": "NMR", "address": "0x1776e1f26f98b1a5df9cd347953a26dd3cb46671" },
-      { "sym": "ANT", "address": "0xa117000000f279d81a1d3cc75430faa017fa5a2e" },
-      { "sym": "MLN", "address": "0xec67005c4e498ec7f55e092bd1d35cbc47c91892" },
-      { "sym": "STORJ", "address": "0xb64ef51c888972c908cfacf59b47c1afbc0ab8ac" },
-      { "sym": "GNO", "address": "0x6810e776880c02933d47db1b9fc05908e5386b96" },
-      { "sym": "POWR", "address": "0x5956351a8ac4b580b950d7b3b1820a1cfb94a53f" },
-      { "sym": "REQ", "address": "0x8f8221afbb33998d8584a2b05749ba73c37a938a" },
-      { "sym": "LPT", "address": "0x58b6a8a3302369daec383334672404ee733ab239" },
-      { "sym": "SRM", "address": "0x476c5e26a75bd202a9683ffd34359c0cc15be0ff" },
-      { "sym": "CVC", "address": "0x41e5560054824ea6b0732e656e3ad64e20e94e45" },
-      { "sym": "BLZ", "address": "0x5732046a883704404f284ce41ffadd5b007fd668" },
-      { "sym": "BNT", "address": "0x1f573d6fb3f13d689ff844b4ce37794d79d1a51c" },
-      { "sym": "CHZ", "address": "0x3506424f91fd320ead074f2415ea34d1e8e3b58b" },
-      { "sym": "WNXM", "address": "0x0d438f3b5175bebc262bf23753c1e53d03432bde" },
-      { "sym": "RLC", "address": "0x607f4c5bb672230e8672085532f7e901544a7375" },
-      { "sym": "UOS", "address": "0xd13c7342e1ef687c5ad21b27c2b65d772cab5c8c" },
-      { "sym": "ORBS", "address": "0xff56cc6b1e6ded347aa0be14c5b0aadfc38c28bd" }
+        {
+            "sym": "USD Coin iCAN",
+            "address": "0xa9efDEf197130B945462163a0B852019BA529a66"
+        },
+        {
+            "sym": "BTC iCAN",
+            "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21"
+        },
+        {
+            "sym": "USDT",
+            "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        },
+        {
+            "sym": "USDC",
+            "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        },
+        {
+            "sym": "WBTC",
+            "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+        },
+        {
+            "sym": "BNB",
+            "address": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52"
+        },
+        {
+            "sym": "SHIB",
+            "address": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
+        },
+        {
+            "sym": "DAI",
+            "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+        },
+        {
+            "sym": "HEX",
+            "address": "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39"
+        },
+        {
+            "sym": "stETH",
+            "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+        },
+        {
+            "sym": "BUSD",
+            "address": "0x4Fabb145d64652a948d72533023f6E7A623C7C53"
+        },
+        {
+            "sym": "MATIC",
+            "address": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0"
+        },
+        {
+            "sym": "UNI",
+            "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"
+        },
+        {
+            "sym": "APE",
+            "address": "0x4d224452801ACEd8B2F0aebE155379bb5D594381"
+        },
+        {
+            "sym": "LINK",
+            "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+        },
+        {
+            "sym": "MANA",
+            "address": "0x0F5D2fB29fb7d3CFeE444a200298f468908cC942"
+        },
+        {
+            "sym": "SAND",
+            "address": "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"
+        },
+        {
+            "sym": "AAVE",
+            "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9"
+        },
+        {
+            "sym": "CRV",
+            "address": "0xD533a949740bb3306d119CC777fa900bA034cd52"
+        },
+        {
+            "sym": "SNX",
+            "address": "0xC011A72400E58ecD99Ee497CF89E3775d4bd732F"
+        },
+        {
+            "sym": "YFI",
+            "address": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e"
+        },
+        {
+            "sym": "ENJ",
+            "address": "0xF629cBd94d3791C9250152BD8dfBDF380E2a3B9c"
+        },
+        {
+            "sym": "MKR",
+            "address": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2"
+        },
+        {
+            "sym": "COMP",
+            "address": "0xc00e94Cb662C3520282E6f5717214004A7f26888"
+        },
+        {
+            "sym": "BAT",
+            "address": "0x0D8775F648430679A709E98d2b0Cb6250d2887EF"
+        },
+        {
+            "sym": "BAL",
+            "address": "0xba100000625a3754423978a60c9317c58a424e3D"
+        },
+        {
+            "sym": "ZRX",
+            "address": "0xE41d2489571d322189246DaFA5ebDe1F4699F498"
+        },
+        {
+            "sym": "KNC",
+            "address": "0xdd974D5C2e2928deA5F71b9825b8b646686BD200"
+        },
+        {
+            "sym": "REP",
+            "address": "0x1985365e9f78359a9B6AD760e32412f4a445E862"
+        },
+        {
+            "sym": "LRC",
+            "address": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD"
+        },
+        {
+            "sym": "MTA",
+            "address": "0xA3bEd4E1c75D00Fa6F4e5e8e3fd2Eb859a9a4D55"
+        },
+        {
+            "sym": "RPL",
+            "address": "0xD33526068D116cE69F19A9ee46F0bd304F21A51f"
+        },
+        {
+            "sym": "OMG",
+            "address": "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07"
+        },
+        {
+            "sym": "REN",
+            "address": "0x408e41876cCCDC0F92210600ef50372656052a38"
+        },
+        {
+            "sym": "NMR",
+            "address": "0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671"
+        },
+        {
+            "sym": "ANT",
+            "address": "0xa117000000f279D81A1D3cc75430fAA017FA5A2e"
+        },
+        {
+            "sym": "MLN",
+            "address": "0xec67005c4E498Ec7f55E092bd1d35cbC47C91892"
+        },
+        {
+            "sym": "STORJ",
+            "address": "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC"
+        },
+        {
+            "sym": "GNO",
+            "address": "0x6810e776880C02933D47DB1b9fc05908e5386b96"
+        },
+        {
+            "sym": "POWR",
+            "address": "0x5956351a8ac4b580B950D7b3b1820a1CFB94A53f"
+        },
+        {
+            "sym": "REQ",
+            "address": "0x8f8221aFbB33998d8584A2B05749bA73c37a938a"
+        },
+        {
+            "sym": "LPT",
+            "address": "0x58b6A8A3302369DAEc383334672404Ee733aB239"
+        },
+        {
+            "sym": "SRM",
+            "address": "0x476c5E26a75bd202a9683ffD34359C0CC15be0fF"
+        },
+        {
+            "sym": "CVC",
+            "address": "0x41e5560054824eA6B0732E656E3Ad64E20e94E45"
+        },
+        {
+            "sym": "BLZ",
+            "address": "0x5732046A883704404F284Ce41FfADd5b007FD668"
+        },
+        {
+            "sym": "BNT",
+            "address": "0x1F573D6FB3F13D689fF844B4Ce37794D79d1A51C"
+        },
+        {
+            "sym": "CHZ",
+            "address": "0x3506424f91Fd320EAD074F2415Ea34D1e8E3B58b"
+        },
+        {
+            "sym": "WNXM",
+            "address": "0x0d438F3b5175Bebc262bF23753C1E53d03432bDE"
+        },
+        {
+            "sym": "RLC",
+            "address": "0x607F4C5BB672230e8672085532f7e901544a7375"
+        },
+        {
+            "sym": "UOS",
+            "address": "0xD13c7342e1ef687C5ad21b27c2b65D772cAb5C8c"
+        },
+        {
+            "sym": "ORBS",
+            "address": "0xFF56cC6b1e6ded347aA0bE14C5B0AadFC38C28Bd"
+        }
     ],
-    "routes": [
-    ]
+    "routes": []
 }
