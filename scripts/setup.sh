@@ -42,9 +42,10 @@ if lsof -i:$PORT; then
             npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && \
             npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && \
             npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost && \
-            npx hardhat run scripts/approveTokenAndLP.js && \
+            python utilities/approve_lp.py && \
             python3 utilities/populate_routes.py --ABI && \
-            python3 utilities/populate_routes.py --route"
+            python3 utilities/populate_routes.py --route
+            "
 
     else
         echo "Unsupported OS"
