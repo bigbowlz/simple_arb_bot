@@ -69,4 +69,3 @@ class ArbBot:
             # Private method to estimate gas of the on-chain Trade function call; using web3.py
             return 0  # Replace with actual implementation
         
-        def sign_and_send_tx()

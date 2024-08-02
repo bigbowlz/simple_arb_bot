@@ -1,12 +1,17 @@
-import json
-import os
 from web3 import Web3
-from utilities.populate_routes import (
+from populate_routes import (
     setup
     )
-from utilities.approve_lp import (
-    to_wei
+from balances import (
+    to_wei,
+    from_wei
 )
+
+def sign_and_send_tx(web3, tx, private_key):
+  signed_tx = web3.eth.account.sign_transaction(tx, private_key)
+  tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
+  tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+  return tx_receipt
 
 def send_ETH_to_Arb(account, amount, arb_contract_address, web3, private_key):
   print('Sending ETH from account to arb contract...')
@@ -23,13 +28,11 @@ def send_ETH_to_Arb(account, amount, arb_contract_address, web3, private_key):
   }
 
   # Sign and send the transaction
-  signed_tx = web3.eth.account.sign_transaction(tx, private_key)
-  tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
-  tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-  return tx_receipt
+  return sign_and_send_tx(web3, tx, private_key)
 
 def swap_ETH_for_USDT(web3, account, private_key, weth_instance, usdt_instance, router_instance, arb_contract):
   # Swaps ETH in account for USDT on router, and sends USDT to arb_contract.
+  # Returns BOOL: the status of the swap tx.
 
   # Define swap parameters
   amount_in_wei = to_wei(1, 18)
@@ -49,14 +52,9 @@ Wrapping ETH to WETH in account...''')
       'nonce': nonce,
       'value': amount_in_wei  # Amount of ETH to wrap into WETH
   })
-  
-
-  # Sign and send the wrapping transaction
-  signed_wrap_tx = web3.eth.account.sign_transaction(wrap_tx, private_key)
-  wrap_tx_hash = web3.eth.send_raw_transaction(signed_wrap_tx.rawTransaction)
-  wrap_tx_receipt = web3.eth.wait_for_transaction_receipt(wrap_tx_hash)
+  wrap_tx_receipt = sign_and_send_tx(web3, wrap_tx, private_key)
   if wrap_tx_receipt['status'] == 1:
-    print(f"Wrapped ETH on account: {weth_instance.functions.balanceOf(account.address).call()}")
+    print(f"Wrapped ETH on account: {from_wei(weth_instance.functions.balanceOf(account.address).call(), 18)} WETH")
   else:
     print('Wrap ETH to WETH failed.')
 
@@ -71,13 +69,10 @@ Approving WETH allowance from account to router...''')
       'maxPriorityFeePerGas': web3.to_wei('2', 'gwei'),
       'nonce': nonce,
   })
+  WETH_approval_receipt = sign_and_send_tx(web3, approve_tx, private_key)
 
-  # Sign and send the WETH approval transaction
-  signed_approve_tx = web3.eth.account.sign_transaction(approve_tx, private_key)
-  approve_tx_hash = web3.eth.send_raw_transaction(signed_approve_tx.rawTransaction)
-  WETH_approval_receipt = web3.eth.wait_for_transaction_receipt(approve_tx_hash)
   if WETH_approval_receipt['status'] == 1:
-    print(f"Current WETH allowance on router: {weth_instance.functions.allowance(account.address, router_instance.address).call()}")
+    print(f"Current WETH allowance on router: {from_wei(weth_instance.functions.allowance(account.address, router_instance.address).call(), 18)} WETH")
   else:
     print('WETH approval failed.')
 
@@ -98,12 +93,9 @@ Swapping WETH on account to USDT on arb contract...''')
       'nonce': nonce,
       'value': amount_in_wei,  # Amount of WETH to swap
   })
+  swap_receipt = sign_and_send_tx(web3, swap_tx, private_key)
 
-  # Sign and send the transaction
-  signed_swap_tx = web3.eth.account.sign_transaction(swap_tx, private_key)
-  swap_tx_hash = web3.eth.send_raw_transaction(signed_swap_tx.rawTransaction)
-  swap_receipt = web3.eth.wait_for_transaction_receipt(swap_tx_hash)
-  print(f"Current USDT balance on arb contract: {arb_contract.functions.getBalance(usdt_instance.address).call()}")
+  print(f"Current USDT balance on arb contract: {from_wei(arb_contract.functions.getBalance(usdt_instance.address).call(), 6)} USDT")
   return swap_receipt['status']
 
 def read_all_functions(arb_contract):
@@ -129,12 +121,7 @@ def execute_trade(arb_contract, router1_address, router2_address, token1_address
       'nonce': web3.eth.get_transaction_count(account.address)
   })
   
-  # Sign and send the transaction
-  signed_trade_tx = web3.eth.account.sign_transaction(tx, private_key)
-  trade_tx_hash = web3.eth.send_raw_transaction(signed_trade_tx.rawTransaction)
-  receipt = web3.eth.wait_for_transaction_receipt(trade_tx_hash)
-
-  # Check if the transaction was successful
+  receipt = sign_and_send_tx(web3, tx, private_key)
   if receipt['status'] == 1:
     print("executeTrade function executed successfully")
   else:
@@ -485,14 +472,16 @@ if __name__ == "__main__":
 
   # Get the balance of the smart contract
   balance = web3.eth.get_balance(arb_contract_address)
-  print(f'Current balance of ETH on arb contract: {balance}')
+  print(f'Current balance of ETH on arb contract: {from_wei(balance, 18)} ETH')
   assert balance > 99, "Unexpected! Send 100 ETH failed!"
 
   # Swap 1 ETH for USDT in Uniswap V2
   assert swap_ETH_for_USDT(web3, account, private_key, weth, usdt, uniswap_router, arb_contract) == 1, "Unexpected! Swap WETH-USDT failed!"
   
   # test getBalance(address)
-  print(f'USDT balance is now {arb_contract.functions.getBalance(USDT_address).call()}')
+  if arb_contract.functions.getBalance(USDT_address).call() == 3139017495:
+    print(f'''--------------------------------
+getBalance(address) test succeeded''')
 
   # test owner()
   assert arb_contract.functions.owner().call({"from": owner_address})==owner_address, "Unexpected! owner() test failed"

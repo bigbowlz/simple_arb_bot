@@ -8,13 +8,22 @@ when there's enough balance of the baseAsset in the user wallet.
 Author: ILnaw
 Version: 0.0.1
 '''
+from decimal import Decimal
 
-from populate_routes import (setup)
+def to_wei(amount, decimals):
+    return int(Decimal(amount) * 10**decimals)
+
+def from_wei(amount_in_wei, decimals):
+    return int(Decimal(amount_in_wei) / (10**decimals))
+
+'''from populate_routes import (setup)
 
 def get_ERC20_balance(accountAddress, assetAddress):
-    '''
+    
     Gets and logs the balance of an asset in an account. 
-    '''
+    
     return {} #{assetAddress: balance}
 
 def get_ETH_balance(accountAddress, assetAddress):
+'''
+

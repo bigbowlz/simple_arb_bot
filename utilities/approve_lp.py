@@ -4,8 +4,7 @@ from utilities.populate_routes import (
     )
 import time
 import json
-import os
-from decimal import Decimal
+from balances import (to_wei)
 
 # Connect to your Ethereum node (Infura, local node, etc.)
 web3, data, api_key, api_url = setup()
@@ -95,9 +94,6 @@ def add_liquidity(router_address, tokenA, tokenB, amountADesired, amountBDesired
 
     print(f"Liquidity added successfully to router {router_address}")
     return receipt
-
-def to_wei(amount, decimals):
-    return int(Decimal(amount) * 10**decimals)
 
 def main():
     # Check if the pair exists
