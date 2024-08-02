@@ -172,7 +172,6 @@ class ArbBot:
         ]
         self.bot = self.web3.eth.contract(address=self.bot_address, abi=self.bot_abi)
 
-        self.base_asset = {} #to be set based on needs
         self.min_profitBP = min_profitBP
         self.slippage_bufferBP = slippage_bufferBP
     
@@ -199,11 +198,30 @@ class ArbBot:
 
     def get_balance(self, address):
         return self.bot.functions.getBalance(address).call()
-
-    def get_all_balance(self):
-        # Logic to get all balances
-        return {}  # Replace with actual implementation, in the format of {address:int}
     
+    def get_owner(self):
+        return self.bot.functions.owner().call()
+    
+    def withdraw_eth(self):
+        tx = self.bot.functions.withdrawETH().build_transaction(
+            self.build_tx('withdrawETH'))
+        
+        receipt = sign_and_send_tx(self.web3, tx, self.private_key)
+        return receipt
+    
+    def withdraw_token(self, token_address):
+        tx = self.bot.functions.withdrawToken(token_address).build_transaction({
+            'chainId': self.chain_id,
+            'gas': 1000000,
+            'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
+            'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
+            'nonce': self.get_sender_nonce()
+            })
+        
+        receipt = sign_and_send_tx(self.web3, tx, self.private_key)
+
+        return receipt
+
     def get_min_profitBP(self):
         return self.min_profitBP
 
@@ -243,7 +261,7 @@ class ArbBot:
     
     def build_tx(self, func_to_call, *args):
         tx = {
-            'chainId': self.web3.eth.chain_id,
+            'chainId': self.chain_id,
             'gas': self.__estimate_function_gas(func_to_call, *args),
             'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
             'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
