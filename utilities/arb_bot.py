@@ -1,5 +1,3 @@
-from web3 import Web3
-
 '''
 arb_bot.py
 
@@ -10,62 +8,242 @@ Maintains arbitrage trading states like profitability and slippage settings.
 Author: ILnaw
 Version: 0.0.1
 '''
+from web3 import Web3
+from balances import (to_wei, from_wei, sign_and_send_tx)
 
 class ArbBot:
-    def _init_(self, bot_address, min_profitBP, slippage_bufferBP):
+    def __init__(self, min_profitBP, slippage_bufferBP, private_key, bot_address='0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94'):
         """
         Initialize the ArbBot class.
         """
+        # Connect to localhost
+        self.node_url = "http://127.0.0.1:8545"
+        self.web3 = Web3(Web3.HTTPProvider(self.node_url))
+        self.chain_id = self.web3.eth.chain_id
+
+        if not self.web3.is_connected():
+            raise Exception("Unable to connect to localhost")
+        
+        # Convert private key to public key
+        self.private_key = private_key
+        signer_wallet = self.web3.eth.account.from_key(self.private_key)
+        self.sender_address = signer_wallet.address
+
+        # Create a bot contract web3 instance
+        self.bot_address = bot_address 
+        self.bot_abi = [
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "stateMutability": "payable",
+                "type": "fallback"
+            },
+            {
+                "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_router1",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_router2",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_token1",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_token2",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_amount",
+                    "type": "uint256"
+                }
+                ],
+                "name": "estimateTradeReturn",
+                "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_router1",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_router2",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_token1",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_token2",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_amount",
+                    "type": "uint256"
+                }
+                ],
+                "name": "executeTrade",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_tokenContractAddress",
+                    "type": "address"
+                }
+                ],
+                "name": "getBalance",
+                "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "withdrawETH",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_tokenAddress",
+                    "type": "address"
+                }
+                ],
+                "name": "withdrawToken",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "stateMutability": "payable",
+                "type": "receive"
+            }
+        ]
+        self.bot = self.web3.eth.contract(address=self.bot_address, abi=self.bot_abi)
+
+        self.base_asset = {} #to be set based on needs
         self.min_profitBP = min_profitBP
         self.slippage_bufferBP = slippage_bufferBP
-        self.base_asset = {} #to be set based on needs
-        self.bot_address = bot_address 
-
-        # Connect to Ethereum Sepolia testnet
-        self.w3 = Web3(Web3.HTTPProvider('https://eth-sepolia.public.blastapi.io'))
-
-        if not self.w3.isConnected():
-            raise Exception("Unable to connect to Sepolia")
+    
+    def execute_trade(self, router1, router2, token1, token2, amount):
+        tx = self.bot.functions.executeTrade(
+            router1, router2, token1, token2, amount
+            ).build_transaction(self.build_tx('executeTrade', router1, router2, token1, token2, amount))
         
-        self.arb_contract = None #a web3.py instance of the ArbBot contract
-
-        def execute_trade(self, router1, router2, token1, token2, amount):
-        # Logic to execute the trade using the routers and tokens provided
-            pass
-
-        def estimate_trade_return(self, router1, router2, token1, token2, amount):
-            # Logic to estimate the trade return using the routers and tokens provided
-            return 0  # Replace with actual implementation
-
-        def get_all_balance(self):
-            # Logic to get all balances
-            return {}  # Replace with actual implementation, in the format of {address:int}
-
-        def get_balance(self, address):
-            # Logic to get the balance of a specific token
-            return 0  # returns an integer
-
-        def get_min_profitBP(self):
-            return self.min_profitBP
-
-        def set_min_profitBP(self, min_profitBP):
-            self.min_profitBP = min_profitBP
-
-        def get_slippage_bufferBP(self):
-            return self.slippage_bufferBP
-
-        def set_slippage_bufferBP(self, slippage_bufferBP):
-            self.slippage_bufferBP = slippage_bufferBP
-
-        def get_max_feePerGas(self):
-            # Logic to get the maximum fee per gas from web3.py
-            return 0  # Replace with actual implementation
-
-        def get_safe_trade_gas(self):
-            # Logic to get the safe trade gas, bumped up based on _estimateTradeGas
-            return 0  # Replace with actual implementation
-
-        def _estimate_trade_gas(self):
-            # Private method to estimate gas of the on-chain Trade function call; using web3.py
-            return 0  # Replace with actual implementation
+        receipt = sign_and_send_tx(self.web3, tx, self.private_key)
         
+        if receipt['status'] == 1:
+            print("executeTrade() succeeded! Arb trade completed.")
+        else:
+            print("executeTrade() failed! Arb trade failed.")
+    
+    def estimate_return(self, router1, router2, token1, token2, amount):
+        est_return = self.bot.functions.estimateTradeReturn(
+            _router1 = router1,
+            _router2 = router2,
+            _token1 = token1,
+            _token2 = token2,
+            _amount = amount).call()
+        return est_return
+    
+    def get_all_balance(self):
+        # Logic to get all balances
+        return {}  # Replace with actual implementation, in the format of {address:int}
+
+    def get_balance(self, address):
+        return self.bot.functions.getBalance(address).call()
+
+    def get_min_profitBP(self):
+        return self.min_profitBP
+
+    def set_min_profitBP(self, min_profitBP):
+        self.min_profitBP = min_profitBP
+
+    def get_slippage_bufferBP(self):
+        return self.slippage_bufferBP
+
+    def set_slippage_bufferBP(self, slippage_bufferBP):
+        self.slippage_bufferBP = slippage_bufferBP
+
+    def get_max_feePerGas(self):
+        # Logic to get the maximum fee per gas from web3.py
+        return 0  # Replace with actual implementation
+
+    def get_safe_trade_gas(self):
+        # Logic to get the safe trade gas, bumped up based on _estimateTradeGas
+        return 0  # Replace with actual implementation
+
+    def __estimate_function_gas(self, func_to_call, *args):
+        # Get the function object from the bot contract
+        contract_func = self.bot.functions[func_to_call](*args)
+        
+        # Estimate gas of an on-chain function call
+        gas_estimate = contract_func.estimate_gas({
+            'from': self.sender_address
+        })
+
+        return 1.3 * gas_estimate 
+    
+    def get_sender_nonce(self):
+        return self.web3.eth.get_transaction_count(self.sender_address)
+    
+    def build_tx(self, func_to_call, *args):
+        tx = {
+            'chainId': self.web3.eth.chain_id,
+            'gas': self.__estimate_function_gas(func_to_call, *args),
+            'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
+            'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
+            'nonce': self.get_sender_nonce()
+        }
+        return tx
