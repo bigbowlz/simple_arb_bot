@@ -196,14 +196,14 @@ class ArbBot:
             _token2 = token2,
             _amount = amount).call()
         return est_return
-    
-    def get_all_balance(self):
-        # Logic to get all balances
-        return {}  # Replace with actual implementation, in the format of {address:int}
 
     def get_balance(self, address):
         return self.bot.functions.getBalance(address).call()
 
+    def get_all_balance(self):
+        # Logic to get all balances
+        return {}  # Replace with actual implementation, in the format of {address:int}
+    
     def get_min_profitBP(self):
         return self.min_profitBP
 
@@ -217,12 +217,15 @@ class ArbBot:
         self.slippage_bufferBP = slippage_bufferBP
 
     def get_max_feePerGas(self):
-        # Logic to get the maximum fee per gas from web3.py
-        return 0  # Replace with actual implementation
+        base_fee_per_gas = self.web3.eth.get_block('latest')['baseFeePerGas']
+        max_priority_fee_per_gas = self.web3.eth.max_priority_fee
+        max_fee_per_gas = base_fee_per_gas + max_priority_fee_per_gas
 
-    def get_safe_trade_gas(self):
-        # Logic to get the safe trade gas, bumped up based on _estimateTradeGas
-        return 0  # Replace with actual implementation
+        print(f"Base Fee per Gas: {base_fee_per_gas}")
+        print(f"Max Priority Fee per Gas: {max_priority_fee_per_gas}")
+        print(f"Max Fee per Gas: {max_fee_per_gas}")
+
+        return max_fee_per_gas
 
     def __estimate_function_gas(self, func_to_call, *args):
         # Get the function object from the bot contract
@@ -233,7 +236,7 @@ class ArbBot:
             'from': self.sender_address
         })
 
-        return 1.3 * gas_estimate 
+        return 1.3 * gas_estimate # adjust amplifier based on network competition
     
     def get_sender_nonce(self):
         return self.web3.eth.get_transaction_count(self.sender_address)

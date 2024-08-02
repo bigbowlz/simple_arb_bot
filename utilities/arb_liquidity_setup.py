@@ -327,7 +327,7 @@ getBalance(address) test succeeded''')
 #     pancake_router_address, 
 #     USDT_address, 
 #     USDC_address, 
-#     to_wei(10, 6)) == 1, "Unexpected! executeTrade() test failed"
+#     to_wei(10, 6)), "Unexpected! executeTrade() test failed"
   
   # test withdrawETH()
 
