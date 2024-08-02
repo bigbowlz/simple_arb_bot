@@ -9,9 +9,12 @@ Author: ILnaw
 Version: 0.0.1
 '''
 
-def get_token_balance(accountAddress, assetAddress):
+from populate_routes import (setup)
+
+def get_ERC20_balance(accountAddress, assetAddress):
     '''
     Gets and logs the balance of an asset in an account. 
     '''
     return {} #{assetAddress: balance}
 
+def get_ETH_balance(accountAddress, assetAddress):
