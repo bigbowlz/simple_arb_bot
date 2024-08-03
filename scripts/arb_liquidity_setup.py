@@ -1,10 +1,10 @@
 from web3 import Web3
-from balances import (
+from utilities.balances import (
     to_wei,
     from_wei,
     sign_and_send_tx
 )
-from arb_bot import ArbBot
+from utilities.arb_bot import ArbBot
 
 def send_ETH_to_Arb(arb_bot, amount, nonce):
     print('Sending ETH from sender_address to arb contract...')

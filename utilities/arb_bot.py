@@ -9,7 +9,7 @@ Author: ILnaw
 Version: 0.0.1
 '''
 from web3 import Web3
-from balances import (to_wei, from_wei, sign_and_send_tx)
+from utilities.balances import (sign_and_send_tx)
 
 class ArbBot:
     def __init__(self, min_profitBP, slippage_bufferBP, private_key, bot_address='0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94'):
