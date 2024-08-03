@@ -1,3 +1,12 @@
+'''
+arb_liquidity_setup.py
+
+Tests functions of the ArbBot class and the arbitrage contract, and sets up
+initial ETH and ERC20 token liquidity in the contract.
+
+Author: ILnaw
+Version: 08-04-2024
+'''
 from web3 import Web3
 from utilities.balances import (
     to_wei,
@@ -5,8 +14,19 @@ from utilities.balances import (
     sign_and_send_tx
 )
 from utilities.arb_bot import ArbBot
+from utilities.balances import (get_token_decimals)
 
-def send_ETH_to_Arb(arb_bot, amount, nonce):
+def send_ETH_to_Arb(arb_bot, amount):
+    """
+    Sends native ETH from sender account to the arb bot contract. 
+
+    Params:
+        arb_bot (ArbBot): an ArbBot contract instance.
+        amount (int): Amount in wei.
+
+    Returns:
+        tx_receipt (receipt): The receipt of the ETH transfer transaction.
+    """
     print('Sending ETH from sender_address to arb contract...')
     # Send ETH to Contract
     tx = {
@@ -24,9 +44,18 @@ def send_ETH_to_Arb(arb_bot, amount, nonce):
     return sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
 
 def swap_ETH_for_USDT(arb_bot, weth_instance, usdt_instance, router_instance):
-    # Swaps ETH in sender_address for USDT on router, and sends USDT to bot.
-    # Returns BOOL: the status of the swap tx.
+    """
+    Swaps 1 native ETH to USDT on a router, and sends the returned USDT to the arb bot contract. 
 
+    Params:
+        arb_bot (ArbBot): an ArbBot contract instance.
+        weth_instance (Contract): a contract instance for WETH.
+        usdt_instance (Contract): a contract instance for USDT.
+        router_instance (Contract): a contract instance for the router.
+
+    Returns:
+        bool: True for a successful execution of the swap; False otherwise.
+    """
     # Define swap parameters
     amount_in_wei = to_wei(1, 18)
     amount_out_min = to_wei(1500, 6)
@@ -91,13 +120,75 @@ Swapping WETH on sender_address to USDT on arb contract...''')
     print(f"Current USDT balance on arb contract: {from_wei(arb_bot.bot.functions.getBalance(usdt_instance.address).call(), 6)} USDT")
     return swap_receipt['status']
 
+def swap_ERC20_for_ERC20(arb_bot, ERC20_token1_instance, ERC20_token2_instance, router_instance, amount_in_wei, amount_out_min):
+    """
+    Swaps an ERC20 token1 to another ERC20 token2 on a router, and sends the returned token2 to the arb bot contract. 
+
+    Params:
+        arb_bot (ArbBot): an ArbBot contract instance.
+        ERC20_token1_instance (Contract): a contract instance for token1.
+        ERC20_token2_instance (Contract): a contract instance for token2.
+        router_instance (Contract): a contract instance for the router.
+        amount_in_wei: amount in token1 to be traded.
+        amount_out_min: minimum amount in token2 to receive that is required by the swap transaction.
+
+    Returns:
+        bool: True for a successful execution of the swap; False otherwise.
+    """
+    # Define swap parameters
+    path = [ERC20_token1_instance.address, ERC20_token2_instance.address]
+    deadline = int(arb_bot.web3.eth.get_block('latest')['timestamp']) + 300  # 5 minutes from the current block time
+
+    print('''--------------------------------
+Approving token1 allowance from sender_address to router...''')
+    # Approve the router to spend token1
+    approve_tx = ERC20_token1_instance.functions.approve(router_instance.address, amount_in_wei).build_transaction({
+        'chainId': arb_bot.chain_id,
+        'gas': 400000,
+        'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
+        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
+        'nonce': arb_bot.get_sender_nonce()
+    })
+    token1_approval_receipt = sign_and_send_tx(arb_bot.web3, approve_tx, arb_bot.private_key)
+
+    if token1_approval_receipt['status'] == 1:
+      print(f"Current token1 allowance on router in wei: {ERC20_token1_instance.functions.allowance(arb_bot.sender_address, router_instance.address).call()}")
+    else:
+      print('token1 approval failed.')
+
+    print('''--------------------------------
+Swapping token1 on sender_address to token2 on arb contract...''')
+    # Perform the swap
+    swap_tx = router_instance.functions.swapExactTokensForTokens(
+        amount_in_wei,
+        amount_out_min,
+        path,
+        arb_bot.bot_address,
+        deadline
+    ).build_transaction({
+        'chainId': arb_bot.chain_id,
+        'gas': 400000,
+        'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
+        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
+        'nonce': arb_bot.get_sender_nonce()
+    })
+
+    swap_receipt = sign_and_send_tx(arb_bot.web3, swap_tx, arb_bot.private_key)
+
+    print(f"Current token2 balance on arb contract in wei: {arb_bot.bot.functions.getBalance(usdt_instance.address).call()}")
+    return swap_receipt['status']
+
 def read_all_functions(arb_bot):
-  print(f'All functions of the arb contract: {arb_bot.bot.all_functions()}')    
+    """
+    Reads all solidity functions of the arb bot contract. 
 
-# def withdraw_ETH(bot):
-
-# def withdrawToken(bot, address):
-
+    Params:
+        arb_bot (ArbBot): an ArbBot contract instance.
+    
+    Returns:
+        none
+    """
+    print(f'All functions of the arb contract: {arb_bot.bot.all_functions()}')    
 
 if __name__ == "__main__":
     arb_bot = ArbBot(5, 5, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
@@ -218,72 +309,227 @@ if __name__ == "__main__":
     USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
     erc20_abi = '''
     [
-        {
-            "constant": true,
-            "inputs": [
-                {
-                    "name": "_owner",
-                    "type": "address"
-                }
-            ],
-            "name": "balanceOf",
-            "outputs": [
-                {
-                    "name": "balance",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "_to",
-                    "type": "address"
-                },
-                {
-                    "name": "_value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "transfer",
-            "outputs": [
-                {
-                    "name": "success",
-                    "type": "bool"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "_spender",
-                    "type": "address"
-                },
-                {
-                    "name": "_value",
-                    "type": "uint256"
-                }
-            ],
-            "name": "approve",
-            "outputs": [
-                {
-                    "name": "success",
-                    "type": "bool"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        }
-    ]
+{
+"constant": true,
+"inputs": [],
+"name": "name",
+"outputs": [
+{
+"name": "",
+"type": "string"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_spender",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "approve",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "totalSupply",
+"outputs": [
+{
+"name": "",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_from",
+"type": "address"
+},
+{
+"name": "_to",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "transferFrom",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "decimals",
+"outputs": [
+{
+"name": "",
+"type": "uint8"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [
+{
+"name": "_owner",
+"type": "address"
+}
+],
+"name": "balanceOf",
+"outputs": [
+{
+"name": "balance",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "symbol",
+"outputs": [
+{
+"name": "",
+"type": "string"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_to",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "transfer",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [
+{
+"name": "_owner",
+"type": "address"
+},
+{
+"name": "_spender",
+"type": "address"
+}
+],
+"name": "allowance",
+"outputs": [
+{
+"name": "",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"payable": true,
+"stateMutability": "payable",
+"type": "fallback"
+},
+{
+"anonymous": false,
+"inputs": [
+{
+"indexed": true,
+"name": "owner",
+"type": "address"
+},
+{
+"indexed": true,
+"name": "spender",
+"type": "address"
+},
+{
+"indexed": false,
+"name": "value",
+"type": "uint256"
+}
+],
+"name": "Approval",
+"type": "event"
+},
+{
+"anonymous": false,
+"inputs": [
+{
+"indexed": true,
+"name": "from",
+"type": "address"
+},
+{
+"indexed": true,
+"name": "to",
+"type": "address"
+},
+{
+"indexed": false,
+"name": "value",
+"type": "uint256"
+}
+],
+"name": "Transfer",
+"type": "event"
+}
+]
     '''
     usdt = arb_bot.web3.eth.contract(address=USDT_address, abi=erc20_abi)
 
@@ -295,7 +541,7 @@ if __name__ == "__main__":
     read_all_functions(arb_bot)
 
     # Send 100 ETH to the arbitrage contract; see if tx_receipt.status returns 1
-    assert send_ETH_to_Arb(arb_bot, 100, arb_bot.get_sender_nonce()).status == 1
+    assert send_ETH_to_Arb(arb_bot, 100).status == 1
 
     # Get the ETH balance of the smart contract
     balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
@@ -304,7 +550,7 @@ if __name__ == "__main__":
 
     # Swap 1 ETH for USDT in Uniswap V2
     assert swap_ETH_for_USDT(arb_bot, weth, usdt, uniswap_router) == 1, "Unexpected! Swap WETH-USDT failed!"
-
+    assert swap_ERC20_for_ERC20(arb_bot, usdt, weth, uniswap_router, 1500, 0.1) == 1, "Unexpected! Swap USDT-WETH failed!"
     # test getBalance(address) from smart contract and get_balance(address) from arb_bot object
     usdt_balance = arb_bot.get_balance(USDT_address)
     if usdt_balance == 3139017495:
@@ -335,4 +581,4 @@ Withdrawing all ETH balance...''')
     test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
     print(f'Current balance of ETH on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
-
+    print(f'Current balance of WETH on arb contract: {from_wei(arb_bot.get_balance(weth_address), 18)}...')

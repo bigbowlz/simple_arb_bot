@@ -4,7 +4,7 @@ import requests
 import os
 import argparse
 from dotenv import load_dotenv
-
+from utilities.balances import(get_token_decimals)
 '''
 populate_routes.py
 
@@ -195,19 +195,6 @@ def is_valid_pair(router, token1, token2, web3):
     except Exception as e:
         print(f"Invalid pair {token1}->{token2}")
         return False
-
-def get_token_decimals(token_address, web3):
-    '''
-    Get the number of decimals for a token.
-
-    Params:
-    token_address: the string address of the token contract.
-    web3: an instance of the Web3 class from the web3.py library.
-    '''
-    erc20_abi = '[{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"}]'
-
-    token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
-    return token_contract.functions.decimals().call()
 
 if __name__ == "__main__":
     web3, data, api_key, api_url = setup()

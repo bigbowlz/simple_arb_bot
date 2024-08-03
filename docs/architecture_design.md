@@ -31,6 +31,22 @@
   
 **ArbBot.py**: Models the on-chain smart contract so that all on-chain functions can be easily called off-chain, while providing some additional functions to get network gas consumption details. Maintains arbitrage trading states like profitability and slippage settings.
 
+### Performance Monitor
+The performance of the strategy is determined with the following four metrics.
+1. **Profitability**
+    - **Net Profit:** Calculate the total profits after deducting all costs, including transaction fees, gas fees, and any other operational costs. Net Profit = BalanceAfter - BalanceBefore.
+    - **Return on Investment (ROI):** ROI = (Net Profit / Total Investment) * 100%. This measures the efficiency of the investment. Specifically, total investment refers to all liquidity provided to the arb contract as well as gas.
+    - **Profit per Trade:** Average profit per arbitrage opportunity.
+2. **Success Rate**
+    - **Winning Trades vs. Losing Trades:** The ratio of profitable trades to unprofitable trades. Losing trades include both trades that execute on exchanges with a net loss, and trades that fail to execute on exchanges but incur gas costs.
+3. **Execution Speed**
+    - **Analysis Latency:** Time taken to detect and execute an arbitrage opportunity.  
+    - **On-chain Execution Time:** The time between placing the order and the order getting executed, which reflects gas price competitiveness and serves gas optimization reference.
+4. **Capital Utilization**
+    - **Capital Efficiency:** Percentage of available capital actively used in arbitrage opportunities, calculated with averageLiquidity/totalLiquidity. This does not factor in gas.
+    - **Trade Volume:** The total volume of trades executed by the bot.
+
+
 ### Additional Notes
 I found an existing open-source arb bot template: https://github.com/jamesbachini/DEX-Arbitrage. It has several limitations including:
 1. being JavaScript-based and is an outdated implementation
