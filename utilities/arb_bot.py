@@ -262,7 +262,7 @@ class ArbBot:
     def build_tx(self, func_to_call, *args):
         tx = {
             'chainId': self.chain_id,
-            'gas': self.__estimate_function_gas(func_to_call, *args),
+            'gas': int(self.__estimate_function_gas(func_to_call, *args)) + 100,
             'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
             'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
             'nonce': self.get_sender_nonce()

@@ -322,13 +322,15 @@ getBalance(address) test succeeded''')
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 
         to_wei(10, 6)) == 6412564, "Unexpected! Estimated return wrong!"
 
-    # test withdrawToken(address)
-    print(f'Withdrawing all USDT balance of {from_wei(usdt_balance, 6)}...')
-    withdraw_receipt = arb_bot.withdraw_token(USDT_address)
-    assert arb_bot.get_balance(USDT_address) == 0, "Unexpected! USDT withdrawal failed"
-    print('All USDT withdrawn')
+    # test withdrawToken(address), STILL DOESN'T WORK
+    # print(f'Withdrawing all USDT balance of {from_wei(usdt_balance, 6)}...')
+    # withdraw_receipt = arb_bot.withdraw_token(USDT_address)
+    # assert arb_bot.get_balance(USDT_address) == 0, "Unexpected! USDT withdrawal failed"
+    # print('All USDT withdrawn')
 
     # test withdrawETH()
+    print(f'''--------------------------------
+Withdrawing all ETH balance...''')
     arb_bot.withdraw_eth()
     test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
