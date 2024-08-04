@@ -4,7 +4,7 @@ from utilities.populate_routes import (
     )
 import time
 import json
-from balances import (to_wei)
+from utilities.balances import (to_wei)
 
 # Connect to your Ethereum node (Infura, local node, etc.)
 web3, data, api_key, api_url = setup()

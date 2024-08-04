@@ -2,9 +2,8 @@ require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config({ path: '.env' });
 require("@nomicfoundation/hardhat-ignition-ethers");
 
-const { vars } = require("hardhat/config");
-const ETHERSCAN_API_KEY = vars.get("ETHERSCAN_API_KEY");
-const BSCSCAN_API_KEY = vars.get("BSCSCAN_API_KEY");
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const BSCSCAN_API_KEY = process.env.BSCSCAN_API_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {

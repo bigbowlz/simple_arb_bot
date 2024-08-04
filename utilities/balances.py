@@ -299,6 +299,6 @@ def get_account_balances(arb_bot):
         data = json.load(file)
     print("Data read from json file.")
     print(f'ETH - {arb_bot.web3.eth.get_balance(arb_bot.bot_address)}')
-    for token in data["tokens"]:
+    for token in data["baseAssets"]:
         token_address = token["address"]
         print(f'{token["sym"]} - {arb_bot.get_balance(token_address)}')

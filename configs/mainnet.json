@@ -13,27 +13,27 @@
     ],
     "baseAssets": [
         {
-            "sym": "weth",
-            "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+            "sym": "USDT",
+            "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
         },
         {
-            "sym": "USD Coin iCAN",
-            "address": "0xa9efDEf197130B945462163a0B852019BA529a66"
+            "sym": "USDC",
+            "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
         },
         {
-            "sym": "BTC iCAN",
-            "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21"
+            "sym": "WBTC",
+            "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+        },
+        {
+            "sym": "SHIB",
+            "address": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE"
+        },
+        {
+            "sym": "DAI",
+            "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
         }
     ],
     "tokens": [
-        {
-            "sym": "USD Coin iCAN",
-            "address": "0xa9efDEf197130B945462163a0B852019BA529a66"
-        },
-        {
-            "sym": "BTC iCAN",
-            "address": "0x49AeF2C4005Bf572665b09014A563B5b9E46Df21"
-        },
         {
             "sym": "USDT",
             "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
