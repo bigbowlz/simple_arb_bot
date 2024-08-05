@@ -287,7 +287,7 @@ class ArbBot:
         """
         tx = self.bot.functions.withdrawToken(token_address).build_transaction({
             'chainId': self.chain_id,
-            'gas': 1000000,
+            'gas': 200000,
             'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
             'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
             'nonce': self.get_sender_nonce(),
@@ -397,11 +397,12 @@ class ArbBot:
         Returns:
             tx(dict): the dictionary representation of a transaction.
         """
+        gas = int(self.__estimate_function_gas(func_to_call, *args)) + 100
+        print(f'gas estimate for {func_to_call} is: {gas}')
         tx = {
             'chainId': self.chain_id,
-            'gas': int(self.__estimate_function_gas(func_to_call, *args)) + 100,
-            'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
-            'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
+            'gas': gas,
+            'maxFeePerGas': self.get_max_feePerGas()*2,
             'nonce': self.get_sender_nonce()
         }
         return tx

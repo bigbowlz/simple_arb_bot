@@ -145,6 +145,7 @@ if __name__ == "__main__":
     uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
 
     pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+    pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
 
     erc20_abi = '''
     [
@@ -432,3 +433,10 @@ Withdrawing all ETH balance...''')
     test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
     print(f'Current balance of ETH on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
+
+    try:
+        arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
+
+    except Exception as e:
+        print(f"Error while trying to execute arb trade: {e}")
+       

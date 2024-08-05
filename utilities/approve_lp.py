@@ -119,7 +119,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
         private_key (str): private key of the signer.
 
     Returns:
-        receipt (receipt): receipt of the pair creation transaction.
+        bool or receipt (receipt): False if any step fails, or receipt of the pair creation transaction.
     """
     # Check if the pair exists
     pair_address = factory.functions.getPair(token1.address, token2.address).call()
@@ -128,7 +128,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
             create_pair(web3, factory, token1.address, token2.address, private_key)
         except Exception as e:
             print(f"Error while trying to create pair: {e}")
-            return
+            return False
 
     # Approve tokens
     amount_token1_approve = to_wei(200, get_token_decimals(token1.address, web3)) 
@@ -139,7 +139,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
         approve_tokens(web3, token2, router.address, amount_token2_approve, private_key)
     except Exception as e:
         print(f"Error while trying to approve tokens: {e}")
-
+        return False
     try:
         return add_liquidity(
             web3,
@@ -153,6 +153,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
             private_key)
     except Exception as e:
         print(f"Error while trying to create pool: {e}")
+        return False
 
 if __name__ == "__main__":
     
