@@ -356,7 +356,7 @@ class ArbBot:
 
         return max_fee_per_gas
 
-    def __estimate_function_gas(self, func_to_call, *args):
+    def estimate_function_gas(self, func_to_call, *args):
         """
         Returns the gas estimate of an arbitrage bot contract function.
         
@@ -397,7 +397,7 @@ class ArbBot:
         Returns:
             tx(dict): the dictionary representation of a transaction.
         """
-        gas = int(self.__estimate_function_gas(func_to_call, *args)) + 100
+        gas = int(self.estimate_function_gas(func_to_call, *args)) + 100
         print(f'gas estimate for {func_to_call} is: {gas}')
         tx = {
             'chainId': self.chain_id,
