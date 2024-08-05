@@ -20,7 +20,16 @@ Author: ILnaw
 Version: 0.0.1
 '''
 def setup():
-# Connect to a mainnet node.
+    '''
+    Connect to the localhost, and loads configs.
+
+    Returns:
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        data (dict): mainnet json config data.
+        api_key (str): key of the Etherscan api.
+        api_url (str): url of Etherscan.
+    '''
+    # Connect to a mainnet node.
     node_url = "http://127.0.0.1:8545"
     web3 = Web3(Web3.HTTPProvider(node_url))
 
@@ -47,6 +56,13 @@ def setup():
 def checksum(web3, data):
     '''
     Converts contract addresses to the correct checksum format.
+
+    Params:
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        data (dict): mainnet json config data.
+
+    Returns:
+        none
     '''
     for router in data["routers"]:
         router_address = router["address"]
@@ -69,7 +85,12 @@ def populate_ABIs(data, api_key, api_url):
     and store ABI files in the configs/router_AIBs directory.
 
     Param:
-    data: Python dictionary format of the network config JSON file.
+    data (dict): mainnet json config data.
+    api_key (str): key of the Etherscan api.
+    api_url (str): url of Etherscan.
+
+    Returns:
+        none
     '''
     for router in data["routers"]:
         create_contract_ABI(router, api_key, api_url)
@@ -79,9 +100,12 @@ def create_contract_ABI(dex_contract, api_key, api_url):
     Writes ABI of the contract to a JSON file to store in the configs/router_AIBs directory.
     
     Param:
-    dex_contract (dict): consists of the key "dex" of a string value, and the key "address" of a string value. 
-    api_key: API key to a block explorer.
-    api_url: API url to a block explorer.
+        dex_contract (dict): consists of the key "dex" of a string value, and the key "address" of a string value. 
+        api_key: API key to a block explorer.
+        api_url: API url to a block explorer.
+    
+    Returns:
+        none
     '''
     #API parameters
     params = {
@@ -109,7 +133,8 @@ def populate_routes(data, web3):
     and checking if there's a viable trade route on-chain.
 
     Param:
-    data: Python dictionary format of the network config JSON file.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        data (dict): mainnet json config data.
     '''
     # Remove all existing routes
     data["routes"] = []
@@ -146,13 +171,13 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
     Checks if a route is valid.
 
     Params:
-    router1_name: the string value of the name of router1.
-    router1_address: the string value of the address of the router1 contract.
-    router2_name: the string value of the name of router2.
-    router2_address: the string value of the address of the router2 contract.
-    token1_address: the string value of the address of the token1 contract.
-    token2_address: the string value of the address of the token2 contract.
-    web3: an instance of the Web3 class from the web3.py library.
+        router1_name: the string value of the name of router1.
+        router1_address: the string value of the address of the router1 contract.
+        router2_name: the string value of the name of router2.
+        router2_address: the string value of the address of the router2 contract.
+        token1_address: the string value of the address of the token1 contract.
+        token2_address: the string value of the address of the token2 contract.
+        web3: an instance of the Web3 class from the web3.py library.
     '''
 
     # Load router1 and router2 ABI
@@ -180,9 +205,13 @@ def is_valid_pair(router, token1, token2, web3):
     Checks if a token pair is valid on a given router.
 
     Params:
-    router: web3.py contract instance for a router
-    token1: address of token1 
-    token2: address of token2
+        router: web3.py contract instance for a router
+        token1: address of token1 
+        token2: address of token2
+        web3: an instance of the Web3 class from the web3.py library.
+    
+    Returns:
+        int or boolean: False if not a valid pair, or returns the estimated trade return in token2.
     '''
     try:
         token1_decimals = get_token_decimals(token1, web3)
