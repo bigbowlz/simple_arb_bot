@@ -1,3 +1,7 @@
+from decimal import Decimal
+from web3 import Web3
+import os
+import json
 '''
 balances.py
 
@@ -8,10 +12,6 @@ when there's enough balance of the baseAsset in the user wallet.
 Author: ILnaw
 Version: 08-04-2024
 '''
-from decimal import Decimal
-from web3 import Web3
-import os
-import json
 
 def to_wei(amount, decimals):
     """

@@ -1,3 +1,5 @@
+from web3 import Web3
+from utilities.balances import (sign_and_send_tx)
 '''
 arb_bot.py
 
@@ -8,8 +10,6 @@ Maintains arbitrage trading states like profitability and slippage settings.
 Author: ILnaw
 Version: 08-04-2024
 '''
-from web3 import Web3
-from utilities.balances import (sign_and_send_tx)
 
 class ArbBot:
     """
@@ -290,7 +290,8 @@ class ArbBot:
             'gas': 1000000,
             'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
             'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
-            'nonce': self.get_sender_nonce()
+            'nonce': self.get_sender_nonce(),
+            'from': self.sender_address
             })
         
         receipt = sign_and_send_tx(self.web3, tx, self.private_key)
