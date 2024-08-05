@@ -136,7 +136,7 @@ def read_all_functions(arb_bot):
     print(f'All functions of the arb contract: {arb_bot.bot.all_functions()}')    
 
 if __name__ == "__main__":
-    arb_bot = ArbBot(5, 5, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
+    arb_bot = ArbBot(500, 100, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
     owner_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
     uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
@@ -434,9 +434,10 @@ Withdrawing all ETH balance...''')
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
     print(f'Current balance of ETH on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
 
-    try:
-        arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
+    # test executeTrade
+    # try:
+    #     arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
 
-    except Exception as e:
-        print(f"Error while trying to execute arb trade: {e}")
+    # except Exception as e:
+    #     print(f"Error while trying to execute arb trade: {e}")
        
