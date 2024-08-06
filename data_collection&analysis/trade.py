@@ -1,8 +1,11 @@
-from utilities.populate_routes import (populate_routes)
-from web3 import Web3
+from utilities.populate_routes import (setup, populate_routes)
 from utilities.arb_bot import ArbBot
-from utilities.populate_routes import (setup)
+from web3 import Web3
 import json
+import time
+import csv
+from datetime import datetime
+
 '''
 trade.py
 
@@ -11,7 +14,7 @@ Executes trades when profit target is hit, and logs results to console.
 
 Author: ILnaw
 Version: 0.0.1
-'''
+'''     
 def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, tokenB_address, router1, router2):
     """
     Get the price difference of tokenA/tokenB on two different routers.
@@ -30,7 +33,7 @@ def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, token
     reserve0_on_1, reserve1_on_1, _ = reserves_on_1
     price_on_router1 = reserve0_on_1 / reserve1_on_1
 
-    reserves_on_2 = pair_contract_1.functions.getReserves().call()
+    reserves_on_2 = pair_contract_2.functions.getReserves().call()
     reserve0_on_2, reserve1_on_2, _ = reserves_on_2
     price_on_router1 = reserve0_on_2 / reserve1_on_2
     
@@ -38,27 +41,55 @@ def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, token
 
 def get_pair_contract(web3, factory_contract, pair_contract_abi, token1_address, token2_address):
     pair_contract_address = factory_contract.functions.getPair(token1_address, token2_address).call()
-    return web3.eth.contract(pair_contract_address, pair_contract_abi)
+    return web3.eth.contract(address = pair_contract_address, abi = pair_contract_abi)
 
-def hit_profit_target(min_profitBP, slippage_bufferBP, price_diff):
-    if price_diff > min_profitBP + slippage_bufferBP + 0.006:  
+def hit_profit_target(min_profitBP, slippage_bufferBP, trading_feeBP, price_diff):
+    if price_diff > (min_profitBP + slippage_bufferBP + trading_feeBP)/100:  
         return True
     return False
 
+def config_bot():
+    """
+    Configs the arb bot instance with min_profitBP, slippage_bufferBP and operation duration.
 
+    Returns:
+        arb_bot (ArbBot): an ArbBot instance.
+        duration (int): duration of operation in minutes.
 
-def main():
+    """
+    use_default_min_profitBP = input("Use default min_profitBP (500 bps)? (y/n)")
+    if use_default_min_profitBP in ["y", "Y", "yes", "Yes"]:
+        min_profitBP = 500
+    else:
+        min_profitBP = input("Min profitability target in bps: ")
+
+    use_default_slippage_bufferBP = input("Use default slippage_bufferBP (100 bps)? (y/n)")
+    if use_default_slippage_bufferBP in ["y", "Y", "yes", "Yes"]:
+        slippage_bufferBP = 100
+    else:
+        slippage_bufferBP = input("Slippage buffer in bps:")
+
+    print('Initiating the arbitrage bot...')
+    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
+
+    use_default_minutes = input("Use default minutes (30 mins)? (y/n)")
+    if use_default_minutes in ["y", "Y", "yes", "Yes"]:
+        minutes = 30
+    else:
+        minutes = input('Operation duration in minutes: ')
+
+    return arb_bot, minutes
+
+if __name__ == "__main__":
     '''
     The main function that serves as the entry point of the program.
     '''
     web3, data, api_key, api_url = setup()
     populate_routes(data, web3)
-
-    # Initiate the arb bot instance
-    print('Initiating the arbitrage bot...')
-    min_profitBP = input("Provide the min profitability target in bps of your bot:")
-    slippage_bufferBP = input("Provide the slippage buffer in bps of your bot:")
-    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
+    arb_bot, minutes = config_bot()
+    duration = minutes * 60 # seconds to operate the bot
+    min_profitBP = arb_bot.get_min_profitBP()
+    slippage_bufferBP = arb_bot.get_slippage_bufferBP()
 
     # create UniswapV2Router instance
     uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
@@ -70,14 +101,12 @@ def main():
     pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
     pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
 
-    # create Uniswap Factory instance
-    uniswap_factory_address = uniswap_router.functions.factory().call()
+    # create Router contract dict
+    router_dict = {uniswap_router_address: uniswap_router, pancake_router_address: pancake_router}
+    # load Uniswap Factory abi
     with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
         factory_abi = json.load(factory_abi_file)
         print("factory_abi read from json file.")
-    uniswap_factory = web3.eth.contract(address=uniswap_factory_address, abi=factory_abi)
-    
-
 
     uniswap_v2_pair_abi = [
         {
@@ -95,8 +124,35 @@ def main():
         }
     ]
 
-    while True: # to be changed to run for 2 hours
+    # Run the bot for the specified duration
+    print("Bot setup complete. Monitoring on-chain opportunites...")
+    start_time = time.time()
+
+    while time.time() - start_time < duration:
 	    for viable_route in data["routes"]:
-    	    if hit_profit_target(min_profitBP, slippage_bufferBP, price_diff) == True:
-		        executeTrade(viable_route, amount_in)
-		        
+             token1 = viable_route["token1"]
+             token2 = viable_route["token2"]
+             router1 = router_dict[viable_route["router1"]]
+             router2 = router_dict[viable_route["router2"]]
+
+             price_diff = get_price_diff(
+                web3,
+                uniswap_v2_pair_abi,
+                factory_abi,
+                token1,
+                token2,
+                router1,
+                router2)
+             
+             if hit_profit_target(min_profitBP, slippage_bufferBP, 60, price_diff) == True:
+                 token1_balance = arb_bot.get_balance(token1)
+                 if arb_bot.estimate_return(router1, router2, token1, token2) > token1_balance:
+                    arb_bot.executeTrade(router1, router2, token1, token2, token1_balance)
+                 elif arb_bot.estimate_return(router2, router1, token1, token2) > token1_balance:
+                    arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
+
+             # Sleep for a short duration (0.5s) to avoid busy-waiting in CPU
+             time.sleep(1)
+        
+    print(f"Completed bot operations for {minutes} minutes.")
+
