@@ -1,6 +1,8 @@
-# Project Setup
+# Simple Arb Bot 
+This project aims to develop an automated arbitrage bot for Uniswap V2 DEXes and profit from the price differences of the same asset in different DEX markets. This bot will collect live price of a list of assets from on-chain smart contracts, and make informed decisions about when to execute simultaneous arbitrage transactions. The ultimate goal is to profit from these transactions while contributing to the overall efficiency and balance of DeFi markets by aligning prices across different markets or exchanges. 
 
-## Install Dependencies
+## Project Setup
+### Install Dependencies
 To host an Ethereum fork locally and deploy arbitrage contracts
 
     npm install --save-dev hardhat 
@@ -23,8 +25,8 @@ To manage environment variables
     npm install dotenv
 
 
-## Terminal
-#### Run the setup script to start a local Ethereum folk, deploy test tokens and the arbitrage contract, and populate valid trade routes.
+### Terminal
+#### Command to start a local Ethereum folk, deploy the arbitrage contract, set up token liquidity in the arb contract, and populate valid trade routes. Run the command from the root directory.
 ```
 chmod +x scripts/setup.sh && ./scripts/setup.sh
 ```
@@ -34,3 +36,8 @@ chmod +x scripts/setup.sh && ./scripts/setup.sh
     arbitrage#Arbitrage - 0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94
     BTC#BTC_iCAN - 0x49AeF2C4005Bf572665b09014A563B5b9E46Df21
     USDC#USDC_iCAN - 0xa9efDEf197130B945462163a0B852019BA529a66
+
+#### Run the arb bot using the following command from the root directory.
+```
+python data_collection\&analysis/trade.py 
+```

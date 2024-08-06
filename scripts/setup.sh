@@ -28,7 +28,8 @@ if lsof -i:$PORT; then
     pool="python utilities/approve_lp.py" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
     abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap, PancakeSwap, and SushiSwap)
     route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
-    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${pool} && ${abi} && ${route}"
+    setup_liq="python scripts/arb_liquidity_setup.py" # Set up liquidity for all baseAssets in the arb contract
+    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${pool} && ${abi} && ${route} && ${setup_liq}"
 
     # Open a new shell and run the commands
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -44,7 +45,8 @@ if lsof -i:$PORT; then
             npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost && \
             python utilities/approve_lp.py && \
             python3 utilities/populate_routes.py --ABI && \
-            python3 utilities/populate_routes.py --route
+            python3 utilities/populate_routes.py --route && \ 
+            python scripts/arb_liquidity_setup.py
             "
 
     else

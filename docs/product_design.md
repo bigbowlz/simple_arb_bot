@@ -5,7 +5,7 @@ Arbitrage is a trading strategy that involves taking advantage of price discrepa
 
 With the rise of blockchain technology, decentralized exchanges (DEXes) have seen tremendous growth. The top 10 DEXs, including Uniswap, Curve, and PancakeSwap, had a combined trading volume of $66.6 billion in Q2 2023. The price discrepancies of assets across these different DEX markets thus become huge arbitrage opportunities that I'm interested in exploring.
 
-This project aims to develop an automated arbitrage bot that profits from the price differences of the same asset in different DEX markets. This bot will be designed to collect live price feeds through API integrations with various on-chain decentralized exchanges. By continuously analyzing these price feeds, the bot will make informed decisions about when to trigger on-chain smart contract calls to execute simultaneous arbitrage transactions. The ultimate goal is to profit from these transactions while contributing to the overall efficiency and balance of DeFi markets by aligning prices across different markets or exchanges. 
+This project aims to develop an automated arbitrage bot for Uniswap V2 DEXes and profit from the price differences of the same asset in different DEX markets. This bot will collect live price of a list of assets from on-chain smart contracts, and make informed decisions about when to execute simultaneous arbitrage transactions. The ultimate goal is to profit from these transactions while contributing to the overall efficiency and balance of DeFi markets by aligning prices across different markets or exchanges. 
 
 ## Project Arbitrage Strategy
 #### How Arbitrage Works in Decentralized Exchanges

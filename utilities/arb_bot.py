@@ -233,7 +233,7 @@ class ArbBot:
             amount (int): The amount of token1 to trade with.
 
         Returns:
-            The estimated amount of return in token2. 
+            int: The estimated amount of return in token2. 
         """
 
         est_return = self.bot.functions.estimateTradeReturn(
