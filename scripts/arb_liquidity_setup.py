@@ -7,16 +7,13 @@ initial ETH and ERC20 token liquidity in the contract.
 Author: ILnaw
 Version: 08-04-2024
 '''
-from web3 import Web3
 from utilities.balances import (
     to_wei,
     from_wei,
     sign_and_send_tx
 )
 from utilities.arb_bot import ArbBot
-from utilities.balances import (get_token_decimals, get_account_balances)
-from utilities.approve_lp import (approve_tokens)
-import os
+from utilities.balances import (get_account_balances)
 import json
 
 def send_ETH_to_Arb(arb_bot, amount):
@@ -46,22 +43,24 @@ def send_ETH_to_Arb(arb_bot, amount):
     # Sign and send the transaction
     return sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
 
-def swap_ETH_for_ERC20(arb_bot, weth_instance, ERC20_instance, router_instance):
+def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, router_instance, recipient_address):
     """
-    Swaps 1 native ETH to USDT on a router, and sends the returned USDT to the arb bot contract. 
+    Swaps 1 native ETH to an ERC20 on a router, and sends the returned ERC20 to the arb bot contract. 
 
     Params:
+        amount_in_ETH (int): amount in ETH to swap in.
         arb_bot (ArbBot): an ArbBot contract instance.
         weth_instance (Contract): a contract instance for WETH.
         ERC20_instance (Contract): a contract instance for ERC20.
         router_instance (Contract): a contract instance for the router.
+        recipient_address (str): the address of the recipient. 
 
     Returns:
         bool: True for a successful execution of the swap; False otherwise.
     """
     # Define swap parameters
-    amount_in_wei = to_wei(1, 18)
-    amount_out_min = to_wei(1, 6) 
+    amount_in_wei = to_wei(amount_in_ETH, 18)
+    amount_out_min = to_wei(amount_in_ETH, 6) 
     path = [weth_instance.address, ERC20_instance.address]
     deadline = int(arb_bot.web3.eth.get_block('latest')['timestamp']) + 300  # 5 minutes from the current block time
 
@@ -102,12 +101,12 @@ Approving WETH allowance from sender_address to router...''')
       print('WETH approval failed.')
 
     print(f'''--------------------------------
-Swapping WETH on sender_address to {ERC20_instance.functions.symbol().call()} on arb contract...''')
+Swapping WETH on sender_address to {ERC20_instance.functions.symbol().call()} on recipient address...''')
     # Perform the swap
     swap_tx = router_instance.functions.swapExactETHForTokens(
         amount_out_min,
         path,
-        arb_bot.bot_address,
+        recipient_address,
         deadline
     ).build_transaction({
         'chainId': arb_bot.chain_id,
@@ -120,7 +119,8 @@ Swapping WETH on sender_address to {ERC20_instance.functions.symbol().call()} on
 
     swap_receipt = sign_and_send_tx(arb_bot.web3, swap_tx, arb_bot.private_key)
 
-    print(f"Current USDT balance on arb contract: {from_wei(arb_bot.bot.functions.getBalance(ERC20_instance.address).call(), 6)} USDT")
+    ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
+    print(f"Current {ERC20_instance.functions.symbol().call()} balance on recipient address: {ERC20_balance_on_recipient}")
     return swap_receipt['status']
 
 def read_all_functions(arb_bot):
@@ -371,11 +371,6 @@ if __name__ == "__main__":
 }
 ]
     '''
-    USDC_address = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-    usdc = arb_bot.web3.eth.contract(address=USDC_address, abi=erc20_abi)
-
-    USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
-    usdt = arb_bot.web3.eth.contract(address=USDT_address, abi=erc20_abi)
 
     weth_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     weth_abi = '''[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]'''
@@ -399,9 +394,10 @@ if __name__ == "__main__":
     for token in data["baseAssets"]:
         token_address = token["address"]
         token_contract = arb_bot.web3.eth.contract(address=token_address, abi=erc20_abi)
-        assert swap_ETH_for_ERC20(arb_bot, weth, token_contract, uniswap_router) == 1, "Unexpected! Swap WETH-ERC20 failed!"
+        assert swap_ETH_for_ERC20(1, arb_bot, weth, token_contract, uniswap_router, arb_bot.bot_address) == 1, "Unexpected! Swap WETH-ERC20 failed!"
 
     # test getBalance(address) from smart contract and get_balance(address) from arb_bot object
+    USDT_address = "0xdAC17F958D2ee523a2206206994597C13D831ec7"
     usdt_balance = arb_bot.get_balance(USDT_address)
     if usdt_balance == 3139017495:
       print(f'''--------------------------------

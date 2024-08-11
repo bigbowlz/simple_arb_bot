@@ -288,7 +288,7 @@ class ArbBot:
         """
         tx = self.bot.functions.withdrawToken(token_address).build_transaction({
             'chainId': self.chain_id,
-            'gas': 200000,
+            'gas': 500000,
             'maxFeePerGas': self.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
             'maxPriorityFeePerGas': self.web3.to_wei('5', 'gwei'),
             'nonce': self.get_sender_nonce(),
