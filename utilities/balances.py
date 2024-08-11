@@ -80,12 +80,15 @@ def get_account_balances(arb_bot):
         arb_bot (Contract): contract instance of the arbitrage bot. 
 
     Returns:
-        none
+        balances (dict): balances of all tokens in a dictionary.
     '''
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
-    print("Data read from json file.")
-    print(f'ETH - {arb_bot.web3.eth.get_balance(arb_bot.bot_address)}')
+    ETH_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
+    balances = {"ETH": ETH_balance}
     for token in data["baseAssets"]:
         token_address = token["address"]
-        print(f'{token["sym"]} - {arb_bot.get_balance(token_address)}')
+        token_sym = token["sym"]
+        token_balance = arb_bot.get_balance(token_address)
+        balances[token_sym] =token_balance
+    return balances

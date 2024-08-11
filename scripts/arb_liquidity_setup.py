@@ -418,7 +418,7 @@ getBalance(address) test succeeded''')
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 
         to_wei(10, 6)) == 6412564, "Unexpected! Estimated return wrong!"
     
-    get_account_balances(arb_bot)
+    print(get_account_balances(arb_bot))
 
     # test withdrawToken(address), STILL DOESN'T WORK
     # print(f'Withdrawing all USDT balance of {from_wei(usdt_balance, 6)}...')
