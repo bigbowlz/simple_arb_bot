@@ -220,6 +220,7 @@ class ArbBot:
             print("executeTrade() succeeded! Arb trade completed.")
         else:
             print("executeTrade() failed! Arb trade failed.")
+        return receipt.transactionHash
     
     def estimate_return(self, router1, router2, token1, token2, amount):
         """

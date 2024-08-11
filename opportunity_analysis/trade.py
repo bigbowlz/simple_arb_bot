@@ -132,8 +132,6 @@ if __name__ == "__main__":
         }
     ]
 
-
-
     # Create a csv file to track trade txs and performance.
     with open("performance_monitor/trade_logs.csv", mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -157,36 +155,38 @@ if __name__ == "__main__":
              router2 = router_dict[viable_route["router2"]]
 
              price_diff = get_price_diff(
-                web3,
-                uniswap_v2_pair_abi,
-                factory_abi,
-                token1,
-                token2,
-                router1,
-                router2)
-             
+                 web3,
+                 uniswap_v2_pair_abi,
+                 factory_abi,
+                 token1,
+                 token2,
+                 router1,
+                 router2
+                 )
+
              if hit_profit_target(min_profitBP, slippage_bufferBP, 60, price_diff) == True:
                  time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
                  if arb_bot.estimate_return(router1, router2, token1, token2) > token1_balance:
+                    time_tx_init = time.time()
                     txhash = arb_bot.executeTrade(router1, router2, token1, token2, token1_balance)
+                    time_tx_finalized = time.time()
                  elif arb_bot.estimate_return(router2, router1, token1, token2) > token1_balance:
                     txhash = arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
 
-            # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
-            with open("performance_monitor/trade_logs.csv", mode='a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([
-                    price_diff, 
-                    time_opportunity_found, 
-                    "time_tx_init", 
-                    "time_tx_finalized", 
-                    "amount_in", 
-                    "amount_out", 
-                    txhash
-                    ])
-             # Sleep for a short duration (0.5s) to avoid busy-waiting in CPU
+                 # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
+                 with open("performance_monitor/trade_logs.csv", mode='a', newline='') as file:
+                     writer = csv.writer(file)
+                     writer.writerow([
+                         price_diff, 
+                         time_opportunity_found, 
+                         time_tx_init, 
+                         time_tx_finalized, 
+                         token1_balance, # balance before the trade
+                         arb_bot.get_balance(token1), # balance after the trade
+                         txhash
+                         ])
+             # Sleep for a short duration to avoid busy-waiting in CPU
              time.sleep(1)
-        
     print(f"Completed bot operations for {int(duration/60)} minutes.")
 
