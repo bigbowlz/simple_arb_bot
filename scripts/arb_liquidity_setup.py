@@ -432,8 +432,10 @@ Withdrawing all ETH balance...''')
     arb_bot.withdraw_eth()
     test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
-    print(f'Current balance of ETH on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
+    print(f'Current ETH balance on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
 
+    assert send_ETH_to_Arb(arb_bot, 100).status == 1
+    print(f'Current ETH balance on arb contract: {from_wei(arb_bot.web3.eth.get_balance(arb_bot.bot_address), 18)} ETH')
     # test executeTrade
     # try:
     #     arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
