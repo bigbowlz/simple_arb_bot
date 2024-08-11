@@ -2,7 +2,7 @@ from utilities.populate_routes import (setup)
 from utilities.arb_bot import ArbBot
 import json
 import time
-
+import csv
 '''
 trade.py
 
@@ -132,6 +132,21 @@ if __name__ == "__main__":
         }
     ]
 
+
+
+    # Create a csv file to track trade txs and performance.
+    with open("performance_monitor/trade_logs.csv", mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([
+            "price_diff", 
+            "time_opportunity_found", 
+            "time_tx_init", 
+            "time_tx_finalized", 
+            "amount_in", 
+            "amount_out", 
+            "txhash"
+            ])
+    
     # Run the bot for the specified duration
     print("Bot setup complete. Monitoring on-chain opportunites...")
     while time.time() - start_time < duration:
@@ -151,12 +166,25 @@ if __name__ == "__main__":
                 router2)
              
              if hit_profit_target(min_profitBP, slippage_bufferBP, 60, price_diff) == True:
+                 time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
                  if arb_bot.estimate_return(router1, router2, token1, token2) > token1_balance:
-                    arb_bot.executeTrade(router1, router2, token1, token2, token1_balance)
+                    txhash = arb_bot.executeTrade(router1, router2, token1, token2, token1_balance)
                  elif arb_bot.estimate_return(router2, router1, token1, token2) > token1_balance:
-                    arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
+                    txhash = arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
 
+            # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
+            with open("performance_monitor/trade_logs.csv", mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([
+                    price_diff, 
+                    time_opportunity_found, 
+                    "time_tx_init", 
+                    "time_tx_finalized", 
+                    "amount_in", 
+                    "amount_out", 
+                    txhash
+                    ])
              # Sleep for a short duration (0.5s) to avoid busy-waiting in CPU
              time.sleep(1)
         
