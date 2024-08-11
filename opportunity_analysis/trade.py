@@ -1,10 +1,7 @@
-from utilities.populate_routes import (setup, populate_routes)
+from utilities.populate_routes import (setup)
 from utilities.arb_bot import ArbBot
-from web3 import Web3
-from datetime import datetime
 import json
 import time
-import csv
 
 '''
 trade.py
@@ -86,85 +83,57 @@ def hit_profit_target(min_profitBP, slippage_bufferBP, trading_feeBP, price_diff
         return True
     return False
 
-def config_bot():
-    """
-    Configs the arb bot instance with min_profitBP, slippage_bufferBP and operation duration.
-
-    Returns:
-        arb_bot (ArbBot): an ArbBot instance.
-        duration (int): duration of operation in minutes.
-
-    """
-    use_default_min_profitBP = input("Use default min_profitBP (500 bps)? (y/n)")
-    if use_default_min_profitBP in ["y", "Y", "yes", "Yes"]:
-        min_profitBP = 500
-    else:
-        min_profitBP = input("Min profitability target in bps: ")
-
-    use_default_slippage_bufferBP = input("Use default slippage_bufferBP (100 bps)? (y/n)")
-    if use_default_slippage_bufferBP in ["y", "Y", "yes", "Yes"]:
-        slippage_bufferBP = 100
-    else:
-        slippage_bufferBP = input("Slippage buffer in bps:")
-
-    print('Initiating the arbitrage bot...')
-    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
-
-    use_default_minutes = input("Use default minutes (30 mins)? (y/n)")
-    if use_default_minutes in ["y", "Y", "yes", "Yes"]:
-        minutes = 30
-    else:
-        minutes = input('Operation duration in minutes: ')
-
-    return arb_bot, minutes
-
-web3, data, api_key, api_url = setup()
-arb_bot, minutes = config_bot()
-duration = minutes * 60 # seconds to operate the bot
-min_profitBP = arb_bot.get_min_profitBP()
-slippage_bufferBP = arb_bot.get_slippage_bufferBP()
-
-# create UniswapV2Router instance
-uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-with open("configs/router_ABIs/UniswapV2Router02_abi.json", "r") as file:
-    uniswap_router_abi = json.load(file)
-uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
-
-# create PancakeRouter instance
-pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
-pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
-
-# create Router contract dict
-router_dict = {uniswap_router_address: uniswap_router, pancake_router_address: pancake_router}
-# load Uniswap Factory abi
-with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
-    factory_abi = json.load(factory_abi_file)
-    print("factory_abi read from json file.")
-
-uniswap_v2_pair_abi = [
-    {
-        "constant": True,
-        "inputs": [],
-        "name": "getReserves",
-        "outputs": [
-            {"name": "_reserve0", "type": "uint112"},
-            {"name": "_reserve1", "type": "uint112"},
-            {"name": "_blockTimestampLast", "type": "uint32"},
-        ],
-        "payable": False,
-        "stateMutability": "view",
-        "type": "function",
-    }
-]
-
-# Run the bot for the specified duration
-print("Bot setup complete. Monitoring on-chain opportunites...")
-start_time = time.time()
-
 if __name__ == "__main__":
     '''
     The main function that serves as the entry point of the program.
     '''
+    with open('opportunity_analysis/arb_bot_config.json', 'r') as arb_bot_config_file:
+        arb_bot_config = json.load(arb_bot_config_file)
+
+    min_profitBP = arb_bot_config["min_profitBP"]
+    slippage_bufferBP = arb_bot_config["slippage_bufferBP"]
+    duration = arb_bot_config["duration"]
+    start_time = arb_bot_config["start_time"]
+    PRIVATE_KEY = arb_bot_config["PRIVATE_KEY"]
+    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, PRIVATE_KEY)
+
+    web3, data, api_key, api_url = setup()
+
+    # create UniswapV2Router instance
+    uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+    with open("configs/router_ABIs/UniswapV2Router02_abi.json", "r") as file:
+        uniswap_router_abi = json.load(file)
+    uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
+
+    # create PancakeRouter instance
+    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+    pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
+
+    # create Router contract dict
+    router_dict = {uniswap_router_address: uniswap_router, pancake_router_address: pancake_router}
+    # load Uniswap Factory abi
+    with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
+        factory_abi = json.load(factory_abi_file)
+        print("factory_abi read from json file.")
+
+    uniswap_v2_pair_abi = [
+        {
+            "constant": True,
+            "inputs": [],
+            "name": "getReserves",
+            "outputs": [
+                {"name": "_reserve0", "type": "uint112"},
+                {"name": "_reserve1", "type": "uint112"},
+                {"name": "_blockTimestampLast", "type": "uint32"},
+            ],
+            "payable": False,
+            "stateMutability": "view",
+            "type": "function",
+        }
+    ]
+
+    # Run the bot for the specified duration
+    print("Bot setup complete. Monitoring on-chain opportunites...")
     while time.time() - start_time < duration:
 	    for viable_route in data["routes"]:
              token1 = viable_route["token1"]
@@ -191,5 +160,5 @@ if __name__ == "__main__":
              # Sleep for a short duration (0.5s) to avoid busy-waiting in CPU
              time.sleep(1)
         
-    print(f"Completed bot operations for {minutes} minutes.")
+    print(f"Completed bot operations for {int(duration/60)} minutes.")
 

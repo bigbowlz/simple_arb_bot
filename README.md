@@ -26,9 +26,9 @@ To manage environment variables
 
 
 ### Terminal
-#### Command to start a local Ethereum folk, deploy the arbitrage contract, set up token liquidity in the arb contract, and populate valid trade routes. Run the command from the root directory.
+#### Step 1. Start a local Ethereum folk, deploy the arbitrage contract, set up token liquidity in the arb contract, and populate valid trade routes. Run the command from the root directory.
 ```
-chmod +x scripts/setup.sh && ./scripts/setup.sh
+chmod +x scripts/env_setup.sh && ./scripts/env_setup.sh
 ```
 
 #### Deployed addresses after setup:
@@ -37,7 +37,7 @@ chmod +x scripts/setup.sh && ./scripts/setup.sh
     BTC#BTC_iCAN - 0x49AeF2C4005Bf572665b09014A563B5b9E46Df21
     USDC#USDC_iCAN - 0xa9efDEf197130B945462163a0B852019BA529a66
 
-#### Run the arb bot using the following command from the root directory.
+#### Step 2. Run the arb bot, and log the balances of all tokens in the arbitrage contract in `balance_logs.csv`. Run the command from the root directory.
 ```
-python data_collection\&analysis/trade.py 
+chmod +x scripts/run_bot.sh && ./scripts/run_bot.sh
 ```

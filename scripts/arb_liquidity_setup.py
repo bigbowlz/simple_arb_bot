@@ -418,9 +418,7 @@ getBalance(address) test succeeded''')
         "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 
         to_wei(10, 6)) == 6412564, "Unexpected! Estimated return wrong!"
     
-    print(get_account_balances(arb_bot))
-
-    # test withdrawToken(address), STILL DOESN'T WORK
+    # test withdrawToken(address), test pending
     # print(f'Withdrawing all USDT balance of {from_wei(usdt_balance, 6)}...')
     # withdraw_receipt = arb_bot.withdraw_token(USDT_address)
     # assert arb_bot.get_balance(USDT_address) == 0, "Unexpected! USDT withdrawal failed"
@@ -434,12 +432,13 @@ Withdrawing all ETH balance...''')
     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
     print(f'Current ETH balance on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
 
-    assert send_ETH_to_Arb(arb_bot, 100).status == 1
-    print(f'Current ETH balance on arb contract: {from_wei(arb_bot.web3.eth.get_balance(arb_bot.bot_address), 18)} ETH')
-    # test executeTrade
+    # test executeTrade, test pending
     # try:
     #     arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
 
     # except Exception as e:
     #     print(f"Error while trying to execute arb trade: {e}")
-       
+    
+    assert send_ETH_to_Arb(arb_bot, 100).status == 1
+    print(get_account_balances(arb_bot))
+
