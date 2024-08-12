@@ -55,9 +55,6 @@ def wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance):
     Returns:
         wrap_tx_receipt (dict): receipt of the wrapping transaction.
     """
-    print('''--------------------------------
-Wrapping ETH to WETH in sender_address...''')
-    # Wrap ETH to WETH
     wrap_tx = weth_instance.functions.deposit().build_transaction({
         'chainId': arb_bot.chain_id,
         'gas': 400000,
@@ -69,14 +66,9 @@ Wrapping ETH to WETH in sender_address...''')
 
     wrap_tx_receipt = sign_and_send_tx(arb_bot.web3, wrap_tx, arb_bot.private_key)
 
-    if wrap_tx_receipt['status'] == 1:
-      print(f"Wrapped {from_wei(weth_instance.functions.balanceOf(arb_bot.sender_address).call(), 18)} WETH on sender address")
-    else:
-      print('Wrap ETH to WETH failed.')
-
     return wrap_tx_receipt
 
-def swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance, router_instance, recipient_address):
+def swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_address, router_instance, recipient_address):
     """
     Swaps WETH in sender_address to ERC20 on router, and sends the ERC20 to a recipient address.
 
@@ -90,10 +82,7 @@ def swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance, router_instance,
     Returns:
         swap_receipt (dict): the receipt of the swapping transaction.
     """
-    print(f'''--------------------------------
-Swapping WETH on sender_address to {ERC20_instance.functions.symbol().call()} on recipient address...''')
-    # Perform the swap
-    path = ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_instance.address]
+    path = ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_address]
     amount_out_min = int(amount_in_wei / 10 ** 12)
     deadline = int(arb_bot.web3.eth.get_block('latest')['timestamp']) + 300  # 5 minutes from the current block time
 
@@ -128,9 +117,6 @@ def approve_WETH_on_Router(amount_in_wei, arb_bot, weth_instance, router_instanc
     Returns:
         WETH_approval_receipt (dict): the receipt of the WETH approval transaction.
     """
-    print('''--------------------------------
-Approving WETH allowance from sender_address to router...''')
-    # Approve the Uniswap router to spend WETH
     approve_tx = weth_instance.functions.approve(router_instance.address, amount_in_wei).build_transaction({
         'chainId': arb_bot.chain_id,
         'gas': 400000,
@@ -167,7 +153,7 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, ro
     amount_in_wei = to_wei(amount_in_ETH, 18)
     wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance)
     approve_WETH_on_Router(amount_in_wei, arb_bot, weth_instance, router_instance)
-    swap_receipt = swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance, router_instance, recipient_address)
+    swap_receipt = swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance.address, router_instance, recipient_address)
 
     ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
     print(f"Current {ERC20_instance.functions.symbol().call()} balance on recipient address: {ERC20_balance_on_recipient}")
