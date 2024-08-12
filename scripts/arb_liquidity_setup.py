@@ -76,14 +76,13 @@ Wrapping ETH to WETH in sender_address...''')
 
     return wrap_tx_receipt
 
-def swap_WETH_for_ERC20(amount_in_wei, arb_bot, weth_instance, ERC20_instance, router_instance, recipient_address):
+def swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance, router_instance, recipient_address):
     """
     Swaps WETH in sender_address to ERC20 on router, and sends the ERC20 to a recipient address.
 
     Params:
         amount_in_wei (int): amount in wei to swap in.
         arb_bot (ArbBot): an ArbBot contract instance.
-        weth_instance (Contract): a contract instance for WETH.
         ERC20_instance (Contract): a contract instance for ERC20.
         router_instance (Contract): a contract instance for the router.
         recipient_address (str): the address of the recipient. 
@@ -94,7 +93,7 @@ def swap_WETH_for_ERC20(amount_in_wei, arb_bot, weth_instance, ERC20_instance, r
     print(f'''--------------------------------
 Swapping WETH on sender_address to {ERC20_instance.functions.symbol().call()} on recipient address...''')
     # Perform the swap
-    path = [weth_instance.address, ERC20_instance.address]
+    path = ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_instance.address]
     amount_out_min = int(amount_in_wei / 10 ** 12)
     deadline = int(arb_bot.web3.eth.get_block('latest')['timestamp']) + 300  # 5 minutes from the current block time
 
@@ -168,7 +167,7 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, ro
     amount_in_wei = to_wei(amount_in_ETH, 18)
     wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance)
     approve_WETH_on_Router(amount_in_wei, arb_bot, weth_instance, router_instance)
-    swap_receipt = swap_WETH_for_ERC20(amount_in_wei, arb_bot, weth_instance, ERC20_instance, router_instance, recipient_address)
+    swap_receipt = swap_WETH_for_ERC20(amount_in_wei, arb_bot, ERC20_instance, router_instance, recipient_address)
 
     ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
     print(f"Current {ERC20_instance.functions.symbol().call()} balance on recipient address: {ERC20_balance_on_recipient}")
