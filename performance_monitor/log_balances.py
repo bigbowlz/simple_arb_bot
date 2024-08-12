@@ -30,7 +30,7 @@ def log_balance_to_csv(arb_bot, end_time, interval):
         with open("performance_monitor/balance_logs.csv", mode='a', newline='') as file:
             writer = csv.writer(file)
             current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            balances = get_account_balances(arb_bot)
+            balances = get_account_balances(arb_bot.web3, arb_bot.bot_address)
             writer.writerow([
                 current_time, 
                 balances["ETH"], 

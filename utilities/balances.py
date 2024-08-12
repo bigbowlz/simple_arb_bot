@@ -72,23 +72,250 @@ def get_token_decimals(token_address, web3):
     token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
     return token_contract.functions.decimals().call()
 
-def get_account_balances(arb_bot):
+def get_account_balances(web3, address):
     '''
     Get the balance of all tokens in an account based on the baseAssets specified in the mainnet config file.
 
     Params:
-        arb_bot (Contract): contract instance of the arbitrage bot. 
+        web3 (Provider): A Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        address (str): address to check for balances.
 
     Returns:
         balances (dict): balances of all tokens in a dictionary.
     '''
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
-    ETH_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
+    ETH_balance = web3.eth.get_balance(address)
     balances = {"ETH": ETH_balance}
+    erc20_abi = '''
+    [
+{
+"constant": true,
+"inputs": [],
+"name": "name",
+"outputs": [
+{
+"name": "",
+"type": "string"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_spender",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "approve",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "totalSupply",
+"outputs": [
+{
+"name": "",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_from",
+"type": "address"
+},
+{
+"name": "_to",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "transferFrom",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "decimals",
+"outputs": [
+{
+"name": "",
+"type": "uint8"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [
+{
+"name": "_owner",
+"type": "address"
+}
+],
+"name": "balanceOf",
+"outputs": [
+{
+"name": "balance",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [],
+"name": "symbol",
+"outputs": [
+{
+"name": "",
+"type": "string"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"constant": false,
+"inputs": [
+{
+"name": "_to",
+"type": "address"
+},
+{
+"name": "_value",
+"type": "uint256"
+}
+],
+"name": "transfer",
+"outputs": [
+{
+"name": "",
+"type": "bool"
+}
+],
+"payable": false,
+"stateMutability": "nonpayable",
+"type": "function"
+},
+{
+"constant": true,
+"inputs": [
+{
+"name": "_owner",
+"type": "address"
+},
+{
+"name": "_spender",
+"type": "address"
+}
+],
+"name": "allowance",
+"outputs": [
+{
+"name": "",
+"type": "uint256"
+}
+],
+"payable": false,
+"stateMutability": "view",
+"type": "function"
+},
+{
+"payable": true,
+"stateMutability": "payable",
+"type": "fallback"
+},
+{
+"anonymous": false,
+"inputs": [
+{
+"indexed": true,
+"name": "owner",
+"type": "address"
+},
+{
+"indexed": true,
+"name": "spender",
+"type": "address"
+},
+{
+"indexed": false,
+"name": "value",
+"type": "uint256"
+}
+],
+"name": "Approval",
+"type": "event"
+},
+{
+"anonymous": false,
+"inputs": [
+{
+"indexed": true,
+"name": "from",
+"type": "address"
+},
+{
+"indexed": true,
+"name": "to",
+"type": "address"
+},
+{
+"indexed": false,
+"name": "value",
+"type": "uint256"
+}
+],
+"name": "Transfer",
+"type": "event"
+}
+]
+    '''
+
     for token in data["baseAssets"]:
         token_address = token["address"]
         token_sym = token["sym"]
-        token_balance = arb_bot.get_balance(token_address)
+        token_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
+        token_balance = token_contract.functions.balanceOf(address).call()
         balances[token_sym] =token_balance
     return balances

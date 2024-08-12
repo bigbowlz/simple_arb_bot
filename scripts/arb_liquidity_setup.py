@@ -436,5 +436,5 @@ Withdrawing all ETH balance...''')
     #     print(f"Error while trying to execute arb trade: {e}")
     
     assert send_ETH_to_Arb(arb_bot, 100).status == 1
-    print(get_account_balances(arb_bot))
+    print(get_account_balances(arb_bot.web3, arb_bot.bot_address))
 

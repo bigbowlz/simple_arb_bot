@@ -1,9 +1,10 @@
 from scripts.arb_liquidity_setup import (swap_ETH_for_ERC20)
 from utilities.arb_bot import ArbBot
+from utilities.balances import (get_account_balances)
 import json
 
-address_2_owned = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
-private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+address_2_owned = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' # the trade simulation address
+private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' # private key of the trade simulation address
 arb_bot = ArbBot(500, 100, private_key)
 
 uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
@@ -250,4 +251,6 @@ for token in data["baseAssets"]:
     token_contract = arb_bot.web3.eth.contract(address=token_address, abi=erc20_abi)
     assert swap_ETH_for_ERC20(100, arb_bot, weth, token_contract, uniswap_router, address_2_owned) == 1, "Unexpected! Swap WETH-ERC20 failed!"
 
-## need to fix get_account_balances(arb_bot) in balances.py so that I can query all balances of address_2_owned here
+print(f'''Balance of the trade simulation address:
+{get_account_balances(arb_bot.web3, address_2_owned)}
+''')
