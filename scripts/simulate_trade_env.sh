@@ -2,15 +2,15 @@
 PORT=8545
 if lsof -i:$PORT; then
     # Define the commands as variables
-    setup="python3 opportunity_analysis/setup_bot.py"
-    trade="python3 opportunity_analysis/bot_trading.py" # run the trading bot
-    log_balances="python3 performance_monitor/log_balances.py" # log balances according to intervals defined
-
+    whale="python3 trading_env_sims/whale_trading.py"
+    regular="python3 trading_env_sims/regular_trading.py" # run the trading bot
+    current_dir=$(pwd)
+    commands="cd ${current_dir} && ${regular}"
     # Open a new shell and run the commands
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
-        ${setup} &&
-        (${trade} & ${log_balances})
+        ${whale} & 
+        osascript -e "tell application \"Terminal\" to do script \"${commands}\""
     else
         echo "Unsupported OS"
     fi

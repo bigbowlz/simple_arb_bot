@@ -42,3 +42,8 @@ chmod +x scripts/env_setup.sh && ./scripts/env_setup.sh
 ```
 chmod +x scripts/run_bot.sh && ./scripts/run_bot.sh
 ```
+
+## Simulate live trading environment with whale traders and regular traders
+```
+chmod +x scripts/simulate_trade_env.sh && ./scripts/simulate_trade_env.sh
+```
