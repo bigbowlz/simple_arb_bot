@@ -6,7 +6,7 @@
 /performance_monitor/balance_logs.csv
 /performance_monitor/trade_logs.csv
 /opportunity_analysis/arb_bot_config.json
-
+/trading_env_sims/*.csv
 # Hardhat files
 /contract_factory/cache
 /contract_factory/artifacts
