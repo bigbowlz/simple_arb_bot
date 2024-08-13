@@ -433,39 +433,6 @@ def swap_ERC20_for_ERC20(amount_in_wei, arb_bot, ERC20_address_1, ERC20_address_
 
     return swap_receipt
 
-def approve_ERC20_on_Router(amount_in_wei, arb_bot, ERC20_instance, router_instance):
-    """
-    Approves spending of ERC20 owned by the arb_bot private key address on a router.
-
-    Params:
-        amount_in_wei (int): amount in wei to swap in.
-        arb_bot (ArbBot): an ArbBot contract instance.
-        ERC20_instance (Contract): a contract instance for the ERC20 token.
-        router_instance (Contract): a contract instance for the router.
-
-    Returns:
-        ERC20_approval_receipt (dict): the receipt of the WETH approval transaction.
-    """
-    approve_tx = ERC20_instance.functions.approve(router_instance.address, amount_in_wei).build_transaction({
-        'chainId': arb_bot.chain_id,
-        'gas': 400000,
-        'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
-        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
-        'nonce': arb_bot.get_sender_nonce(),
-    })
-    ERC20_approval_receipt = sign_and_send_tx(arb_bot.web3, approve_tx, arb_bot.private_key)
-
-    allowance = ERC20_instance.functions.allowance(arb_bot.sender_address, router_instance.address).call()
-    decimal = ERC20_instance.functions.decimals().call()
-    symbol = ERC20_instance.functions.symbol().call()
-
-    if ERC20_approval_receipt['status'] == 1:
-      print(f"Current router allowance for {symbol} owned by {arb_bot.sender_address}: {from_wei(allowance, decimal)} {symbol}")
-    else:
-      print(f'{symbol} approval failed.')
-
-    return ERC20_approval_receipt
-
 def get_ERC20_allowance(ERC20_instance, owner_address, router_address):
     return ERC20_instance.functions.allowance(owner_address, router_address).call()
 
