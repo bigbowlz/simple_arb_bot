@@ -17,7 +17,7 @@ Command-line arguments:
   --route     Populate viable trade routes for two tokens on two dexes in mainnet.json.
 
 Author: ILnaw
-Version: 0.0.1
+Version: 08-14-2024
 '''
 def setup():
     '''

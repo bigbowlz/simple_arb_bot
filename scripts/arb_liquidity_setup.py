@@ -18,7 +18,7 @@ Tests functions of the ArbBot class and the arbitrage contract, and sets up
 initial ETH and ERC20 token liquidity in the contract.
 
 Author: ILnaw
-Version: 08-04-2024
+Version: 08-14-2024
 '''
 def send_ETH_to_Arb(arb_bot, amount):
     """

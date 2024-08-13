@@ -8,7 +8,7 @@ while providing some additional functions to get network gas consumption details
 Maintains arbitrage trading states like profitability and slippage settings.
 
 Author: ILnaw
-Version: 08-04-2024
+Version: 08-14-2024
 '''
 
 class ArbBot:
@@ -220,7 +220,7 @@ class ArbBot:
             print("executeTrade() succeeded! Arb trade completed.")
         else:
             print("executeTrade() failed! Arb trade failed.")
-        return receipt.transactionHash
+        return receipt.transactionHash.hex()
     
     def estimate_return(self, router1, router2, token1, token2, amount):
         """

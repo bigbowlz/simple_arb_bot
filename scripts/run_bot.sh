@@ -6,7 +6,7 @@ if lsof -i:$PORT; then
 
     # Define the commands as variables
     setup="python3 opportunity_analysis/setup_bot.py"
-    trade="python3 opportunity_analysis/trade.py" # run the trading bot
+    trade="python3 opportunity_analysis/bot_trading.py" # run the trading bot
     log_balances="python3 performance_monitor/log_balances.py" # log balances according to intervals defined
 
     # Open a new shell and run the commands

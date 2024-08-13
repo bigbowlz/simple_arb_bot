@@ -12,7 +12,7 @@ approve_lp.py
 Create pairs for two tokens and add liquidity for them on router.
 
 Author: ILnaw
-Version: 08-05-2024
+Version: 08-14-2024
 '''
 
 

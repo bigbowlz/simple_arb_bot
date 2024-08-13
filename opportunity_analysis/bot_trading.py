@@ -10,7 +10,7 @@ Searches routes for trade opportunities and determine profitability.
 Executes trades when profit target is hit, and logs results to console.
 
 Author: ILnaw
-Version: 0.0.1
+Version: 08-14-2024
 '''     
 def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, tokenB_address, router1, router2):
     """
@@ -165,6 +165,7 @@ if __name__ == "__main__":
                  )
 
              if hit_profit_target(min_profitBP, slippage_bufferBP, 60, price_diff) == True:
+                 print("Profit target hit!")
                  time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
                  if arb_bot.estimate_return(router1, router2, token1, token2) > token1_balance:

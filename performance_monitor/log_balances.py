@@ -11,7 +11,7 @@ Logs the balance of all tokens in the arb contract during the operation of an Ar
 according to the interval configged.
 
 Author: ILnaw
-Version: 0.0.5
+Version: 08-14-2024
 '''     
 def log_balance_to_csv(arb_bot, end_time, interval):
     """

@@ -9,7 +9,7 @@ Called in trade.py as an argument to executeTrade as a trade can only succeed
 when there's enough balance of the baseAsset in the user wallet.
 
 Author: ILnaw
-Version: 08-04-2024
+Version: 08-14-2024
 '''
 
 def to_wei(amount, decimals):
@@ -333,9 +333,11 @@ def approve_tokens(web3, token_contract, spender_address, amount, private_key):
     Returns:
         receipt (receipt): receipt of the approval transaction.
     """
+    signer_wallet = web3.eth.account.from_key(private_key)
+    owner_address = signer_wallet.address
     tx = token_contract.functions.approve(spender_address, amount).build_transaction({
-        'from': web3.eth.accounts[0],
-        'nonce': web3.eth.get_transaction_count(web3.eth.accounts[0]),
+        'from': owner_address,
+        'nonce': web3.eth.get_transaction_count(owner_address),
         'gas': 200000,
         'maxFeePerGas': web3.to_wei('20', 'gwei')
     })
@@ -343,7 +345,7 @@ def approve_tokens(web3, token_contract, spender_address, amount, private_key):
     receipt = sign_and_send_tx(web3, tx, private_key)
     token_amount_in_ETH = from_wei(amount, get_token_decimals(token_contract.address, web3))
     token_symbol = token_contract.functions.symbol().call()
-    print(f"Approved {token_amount_in_ETH} {token_symbol} to {spender_address}")
+    print(f"Approved {token_amount_in_ETH} {token_symbol} from {owner_address} to {spender_address}")
     return receipt
 
 def get_estimated_return(web3, router_instance, amount_in, token_in, token_out):
@@ -436,7 +438,7 @@ def swap_ERC20_for_ERC20(amount_in_wei, arb_bot, ERC20_address_1, ERC20_address_
 def get_ERC20_allowance(ERC20_instance, owner_address, router_address):
     return ERC20_instance.functions.allowance(owner_address, router_address).call()
 
-# the following are for testing purposes
+# the following are for testing purposes and prints all UniswapV2Router's allowances for tokens owned by the whale address
 if __name__ == "__main__":
     from utilities.arb_bot import ArbBot
     whale_address = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' # the whale simulator address
@@ -679,5 +681,5 @@ if __name__ == "__main__":
         token_contract = whale_arb_bot.web3.eth.contract(address=token_address, abi=erc20_abi)
         token_symbol = token_contract.functions.symbol().call()
         allowance = get_ERC20_allowance(token_contract, whale_address, uniswap_router_address)
-
+        print(f"UniswapV2Router's allowance for {whale_address}'s {token_symbol}: {allowance} wei.")
         
