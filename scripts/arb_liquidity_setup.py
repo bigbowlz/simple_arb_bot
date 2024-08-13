@@ -4,7 +4,8 @@ from utilities.trading_utilities import (
     sign_and_send_tx,
     wrap_ETH_to_WETH,
     swap_ERC20_for_ERC20,
-    approve_ERC20_on_Router
+    approve_tokens,
+    get_token_decimals
 )
 from utilities.arb_bot import ArbBot
 from utilities.trading_utilities import (get_account_balances)
@@ -65,11 +66,13 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, ro
     # Define swap parameters
     amount_in_wei = to_wei(amount_in_ETH, 18)
     wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance)
-    approve_ERC20_on_Router(amount_in_wei, arb_bot, weth_instance, router_instance)
+    approve_tokens(arb_bot.web3, weth_instance, router_instance.address, amount_in_wei, arb_bot.private_key)
     swap_receipt = swap_ERC20_for_ERC20(amount_in_wei, arb_bot, "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_instance.address, router_instance, recipient_address)
 
     ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
-    print(f"Current {ERC20_instance.functions.symbol().call()} balance on recipient address: {ERC20_balance_on_recipient}")
+    token_symbol = ERC20_instance.functions.symbol().call()
+    balance_from_wei = from_wei(ERC20_balance_on_recipient, get_token_decimals(ERC20_instance.address, arb_bot.web3))
+    print(f"Current {token_symbol} balance on recipient address (int): {balance_from_wei} {token_symbol}")
     return swap_receipt['status']
 
 
@@ -374,5 +377,5 @@ Withdrawing all ETH balance...''')
     #     print(f"Error while trying to execute arb trade: {e}")
     
     assert send_ETH_to_Arb(arb_bot, 100).status == 1
-    print(get_account_balances(arb_bot.web3, arb_bot.bot_address))
+    print(f'bot balances: {get_account_balances(arb_bot.web3, arb_bot.bot_address)}')
 

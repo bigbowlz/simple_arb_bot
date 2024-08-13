@@ -1,6 +1,5 @@
 from decimal import Decimal
 from web3 import Web3
-import os
 import json
 '''
 trading_utilities.py
@@ -328,7 +327,7 @@ def approve_tokens(web3, token_contract, spender_address, amount, private_key):
         web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         token_contract (Contract): Contract instance of the token.
         spender_address (str): address of the spender. 
-        amount (int): amount of token to approve.
+        amount (int): amount of token to approve in wei.
         private_key (str): private key of the signer.
 
     Returns:
@@ -342,7 +341,9 @@ def approve_tokens(web3, token_contract, spender_address, amount, private_key):
     })
     
     receipt = sign_and_send_tx(web3, tx, private_key)
-    print(f"Approved {amount} of token {token_contract.address} to spender {spender_address}")
+    token_amount_in_ETH = from_wei(amount, get_token_decimals(token_contract.address, web3))
+    token_symbol = token_contract.functions.symbol().call()
+    print(f"Approved {token_amount_in_ETH} {token_symbol} to {spender_address}")
     return receipt
 
 def get_estimated_return(web3, router_instance, amount_in, token_in, token_out):
@@ -411,7 +412,7 @@ def swap_ERC20_for_ERC20(amount_in_wei, arb_bot, ERC20_address_1, ERC20_address_
         swap_receipt (dict): the receipt of the swapping transaction.
     """
     path = [ERC20_address_1, ERC20_address_2]
-    amount_out_min = int(amount_in_wei / 10 ** 12)
+    amount_out_min = 0
     deadline = int(arb_bot.web3.eth.get_block('latest')['timestamp']) + 300  # 5 minutes from the current block time
 
     swap_tx = router_instance.functions.swapExactTokensForTokens(
@@ -434,7 +435,7 @@ def swap_ERC20_for_ERC20(amount_in_wei, arb_bot, ERC20_address_1, ERC20_address_
 
 def approve_ERC20_on_Router(amount_in_wei, arb_bot, ERC20_instance, router_instance):
     """
-    Approves ERC20 spending on a router.
+    Approves spending of ERC20 owned by the arb_bot private key address on a router.
 
     Params:
         amount_in_wei (int): amount in wei to swap in.
@@ -459,8 +460,257 @@ def approve_ERC20_on_Router(amount_in_wei, arb_bot, ERC20_instance, router_insta
     symbol = ERC20_instance.functions.symbol().call()
 
     if ERC20_approval_receipt['status'] == 1:
-      print(f"Current {symbol} allowance on router: {from_wei(allowance, decimal)} {symbol}")
+      print(f"Current router allowance for {symbol} owned by {arb_bot.sender_address}: {from_wei(allowance, decimal)} {symbol}")
     else:
       print(f'{symbol} approval failed.')
 
     return ERC20_approval_receipt
+
+def get_ERC20_allowance(ERC20_instance, owner_address, router_address):
+    return ERC20_instance.functions.allowance(owner_address, router_address).call()
+
+# the following are for testing purposes
+if __name__ == "__main__":
+    from utilities.arb_bot import ArbBot
+    whale_address = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' # the whale simulator address
+    whale_private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' # private key of the whale simulator address
+    whale_arb_bot = ArbBot(500, 100, whale_private_key)
+    uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+
+    with open("configs/mainnet.json", "r") as file:
+        data = json.load(file)
+    print("Data read from json file.")
+    base_assets = data["baseAssets"]
+
+    erc20_abi = '''
+    [
+    {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+    {
+    "name": "",
+    "type": "string"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "constant": false,
+    "inputs": [
+    {
+    "name": "_spender",
+    "type": "address"
+    },
+    {
+    "name": "_value",
+    "type": "uint256"
+    }
+    ],
+    "name": "approve",
+    "outputs": [
+    {
+    "name": "",
+    "type": "bool"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+    },
+    {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [
+    {
+    "name": "",
+    "type": "uint256"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "constant": false,
+    "inputs": [
+    {
+    "name": "_from",
+    "type": "address"
+    },
+    {
+    "name": "_to",
+    "type": "address"
+    },
+    {
+    "name": "_value",
+    "type": "uint256"
+    }
+    ],
+    "name": "transferFrom",
+    "outputs": [
+    {
+    "name": "",
+    "type": "bool"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+    },
+    {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [
+    {
+    "name": "",
+    "type": "uint8"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "constant": true,
+    "inputs": [
+    {
+    "name": "_owner",
+    "type": "address"
+    }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+    {
+    "name": "balance",
+    "type": "uint256"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+    {
+    "name": "",
+    "type": "string"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "constant": false,
+    "inputs": [
+    {
+    "name": "_to",
+    "type": "address"
+    },
+    {
+    "name": "_value",
+    "type": "uint256"
+    }
+    ],
+    "name": "transfer",
+    "outputs": [
+    {
+    "name": "",
+    "type": "bool"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+    },
+    {
+    "constant": true,
+    "inputs": [
+    {
+    "name": "_owner",
+    "type": "address"
+    },
+    {
+    "name": "_spender",
+    "type": "address"
+    }
+    ],
+    "name": "allowance",
+    "outputs": [
+    {
+    "name": "",
+    "type": "uint256"
+    }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+    },
+    {
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "fallback"
+    },
+    {
+    "anonymous": false,
+    "inputs": [
+    {
+    "indexed": true,
+    "name": "owner",
+    "type": "address"
+    },
+    {
+    "indexed": true,
+    "name": "spender",
+    "type": "address"
+    },
+    {
+    "indexed": false,
+    "name": "value",
+    "type": "uint256"
+    }
+    ],
+    "name": "Approval",
+    "type": "event"
+    },
+    {
+    "anonymous": false,
+    "inputs": [
+    {
+    "indexed": true,
+    "name": "from",
+    "type": "address"
+    },
+    {
+    "indexed": true,
+    "name": "to",
+    "type": "address"
+    },
+    {
+    "indexed": false,
+    "name": "value",
+    "type": "uint256"
+    }
+    ],
+    "name": "Transfer",
+    "type": "event"
+    }
+    ]
+        '''
+
+    for token in base_assets:
+        token_address = token["address"]
+        token_contract = whale_arb_bot.web3.eth.contract(address=token_address, abi=erc20_abi)
+        token_symbol = token_contract.functions.symbol().call()
+        allowance = get_ERC20_allowance(token_contract, whale_address, uniswap_router_address)
+
+        

@@ -133,7 +133,7 @@ if __name__ == "__main__":
     ]
 
     # Create a csv file to track trade txs and performance.
-    with open("performance_monitor/trade_logs.csv", mode='w', newline='') as file:
+    with open("performance_monitor/trade_logs_bot.csv", mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([
             "price_diff", 
@@ -175,7 +175,7 @@ if __name__ == "__main__":
                     txhash = arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
-                 with open("performance_monitor/trade_logs.csv", mode='a', newline='') as file:
+                 with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
                      writer = csv.writer(file)
                      writer.writerow([
                          price_diff, 
