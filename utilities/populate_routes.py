@@ -4,7 +4,7 @@ import requests
 import os
 import argparse
 from dotenv import load_dotenv
-from utilities.balances import(get_token_decimals)
+from utilities.trading_utilities import(get_token_decimals)
 '''
 populate_routes.py
 
@@ -24,7 +24,7 @@ def setup():
     Connect to the localhost, and loads configs.
 
     Returns:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         data (dict): mainnet json config data.
         api_key (str): key of the Etherscan api.
         api_url (str): url of Etherscan.
@@ -58,7 +58,7 @@ def checksum(web3, data):
     Converts contract addresses to the correct checksum format.
 
     Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         data (dict): mainnet json config data.
 
     Returns:
@@ -133,7 +133,7 @@ def populate_routes(data, web3):
     and checking if there's a viable trade route on-chain.
 
     Param:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         data (dict): mainnet json config data.
     '''
     # Remove all existing routes

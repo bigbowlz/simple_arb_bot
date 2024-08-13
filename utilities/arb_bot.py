@@ -1,5 +1,5 @@
 from web3 import Web3
-from utilities.balances import (sign_and_send_tx)
+from utilities.trading_utilities import (sign_and_send_tx)
 '''
 arb_bot.py
 
@@ -17,7 +17,7 @@ class ArbBot:
 
     Attributes:
         node_url (str): The url of the node.
-        web3 (Provider): A Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         chain_id (int): The ID of the connected chain.
         private_key (str): Hex value of a private key.
         sender_address (str): Address of the sender.

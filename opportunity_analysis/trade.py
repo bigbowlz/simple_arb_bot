@@ -17,7 +17,7 @@ def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, token
     Get the price difference of tokenA/tokenB on two different routers.
 
     Params:
-        web3 (Provider): A Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         uniswap_v2_pair_abi (str): abi of a uniswap v2 pair contract.
         factory_abi (str): abi of a uniswap v2 factory contract.
         tokenA_address (str): address of a token contract.

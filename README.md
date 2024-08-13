@@ -25,8 +25,8 @@ To manage environment variables
     npm install dotenv
 
 
-### Terminal
-#### Step 1. Start a local Ethereum folk, deploy the arbitrage contract, set up token liquidity in the arb contract, and populate valid trade routes. Run the command from the root directory.
+### Set up the trading environment on Terminal
+#### Start a local Ethereum folk, deploy the arbitrage contract, set up token liquidity in the arb contract, and populate valid trade routes. Run the command from the root directory.
 ```
 chmod +x scripts/env_setup.sh && ./scripts/env_setup.sh
 ```
@@ -37,7 +37,8 @@ chmod +x scripts/env_setup.sh && ./scripts/env_setup.sh
     BTC#BTC_iCAN - 0x49AeF2C4005Bf572665b09014A563B5b9E46Df21
     USDC#USDC_iCAN - 0xa9efDEf197130B945462163a0B852019BA529a66
 
-#### Step 2. Run the arb bot, and log the balances of all tokens in the arbitrage contract in `balance_logs.csv`. Run the command from the root directory.
+## Run the arb bot
+#### Run the arb bot, and log the balances of all tokens in the arbitrage contract in `balance_logs.csv`. Run the command from the root directory.
 ```
 chmod +x scripts/run_bot.sh && ./scripts/run_bot.sh
 ```

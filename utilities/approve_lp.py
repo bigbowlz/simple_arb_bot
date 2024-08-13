@@ -1,11 +1,10 @@
-from web3 import Web3
 from utilities.populate_routes import (
     setup,
     get_token_decimals
     )
 import time
 import json
-from utilities.balances import (to_wei, sign_and_send_tx)
+from utilities.trading_utilities import (to_wei, sign_and_send_tx, approve_tokens)
 
 '''
 approve_lp.py
@@ -16,37 +15,14 @@ Author: ILnaw
 Version: 08-05-2024
 '''
 
-def approve_tokens(web3, token_contract, spender_address, amount, private_key):
-    """
-    Approves spender_address to spend an amount of token from signer.
 
-    Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
-        token_contract (Contract): Contract instance of the token.
-        spender_address (str): address of the spender. 
-        amount (int): amount of token to approve.
-        private_key (str): private key of the signer.
-
-    Returns:
-        receipt (receipt): receipt of the approval transaction.
-    """
-    tx = token_contract.functions.approve(spender_address, amount).build_transaction({
-        'from': web3.eth.accounts[0],
-        'nonce': web3.eth.get_transaction_count(web3.eth.accounts[0]),
-        'gas': 200000,
-        'maxFeePerGas': web3.to_wei('20', 'gwei')
-    })
-    
-    receipt = sign_and_send_tx(web3, tx, private_key)
-    print(f"Approved {amount} of token {token_contract.address} to spender {spender_address}")
-    return receipt
 
 def create_pair(web3, factory_contract, tokenA, tokenB, private_key):
     """
     Creates a token pair tokenA - tokenB on the factory contract of a dex.
 
     Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         factory_contract (Contract): Factory contract instance of a dex.
         tokenA (Contract): contract instance of tokenA.
         tokenB (Contract): contract instance of tokenB.
@@ -72,7 +48,7 @@ def add_liquidity(web3, router_contract, tokenA, tokenB, amountADesired, amountB
     Add liquidity to the pool tokenA - tokenB on the router contract of a dex for a specified amount.
 
     Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         router_contract (Contract): Router contract instance of a dex.
         tokenA (Contract): contract instance of tokenA.
         tokenB (Contract): contract instance of tokenB.
@@ -109,7 +85,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
     Add liquidity to the pool tokenA - tokenB on the router contract of a dex for a specified amount.
 
     Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and return the response.
+        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
         factory
         router (Contract): Router contract instance of a dex.
         token1 (Contract): contract instance of token1.

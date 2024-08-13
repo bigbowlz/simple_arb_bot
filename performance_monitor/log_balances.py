@@ -1,4 +1,4 @@
-from utilities.balances import (get_account_balances)
+from utilities.trading_utilities import (get_account_balances)
 from datetime import datetime
 from utilities.arb_bot import ArbBot
 import time
