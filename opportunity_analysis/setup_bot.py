@@ -29,7 +29,7 @@ def config_bot(private_key):
         slippage_bufferBP = int(input("Slippage buffer in bps:"))
 
     print('Initiating the arbitrage bot...')
-    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, private_key)
+    arb_bot = ArbBot(private_key, min_profitBP=min_profitBP, slippage_bufferBP=slippage_bufferBP)
 
     use_default_minutes = input("Use default minutes (30 mins)? (y/n)")
     if use_default_minutes in ["y", "Y", "yes", "Yes"]:

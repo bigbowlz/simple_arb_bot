@@ -51,6 +51,6 @@ if __name__ == "__main__":
     duration = arb_bot_config["duration"]
     start_time = arb_bot_config["start_time"]
     PRIVATE_KEY = arb_bot_config["PRIVATE_KEY"]
-    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, PRIVATE_KEY)
+    arb_bot = ArbBot(PRIVATE_KEY, min_profitBP = min_profitBP, slippage_bufferBP = slippage_bufferBP)
     
     log_balance_to_csv(arb_bot, start_time+duration, 60)
