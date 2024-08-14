@@ -14,7 +14,7 @@ Version: 08-14-2024
 if __name__ == "__main__":
     regular_trader_address = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
     regular_trader_key = '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
-    regular_trader_arb_bot = ArbBot(500, 100, regular_trader_key)
+    regular_trader_arb_bot = ArbBot(regular_trader_key)
     
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
@@ -271,4 +271,4 @@ if __name__ == "__main__":
     end_time = start_time + duration
 
     # Transaction sent by the regular trader address through regular_trader_arb_bot setup, trading between $11 and $5,000 in a single swap.
-    trading_sims(regular_trader_arb_bot, 11, 5_000, end_time, 3, uniswap_router, base_assets, regular_trader_address)
+    trading_sims(regular_trader_arb_bot, 11, 5_000, end_time, 1, uniswap_router, base_assets, regular_trader_address)

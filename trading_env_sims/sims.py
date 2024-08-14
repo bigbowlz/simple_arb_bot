@@ -1,6 +1,6 @@
-from scripts.arb_liquidity_setup import (swap_ETH_for_ERC20, swap_ERC20_for_ERC20)
+from scripts.arb_liquidity_setup import (swap_ETH_for_ERC20)
 from utilities.arb_bot import ArbBot
-from utilities.trading_utilities import (get_account_balances, to_wei, get_estimated_return, approve_tokens)
+from utilities.trading_utilities import (get_account_balances, to_wei, get_estimated_return, approve_tokens, send_ERC20, swap_ERC20_for_ERC20)
 import json
 import time
 import random
@@ -87,35 +87,48 @@ def trading_sims(arb_bot, trade_lower_bound, trade_upper_bound, end_time, interv
             
         time.sleep(interval)
  
-def setup_sim_account(base_assets, erc20_abi, amount_in_ETH, arb_bot, weth, router, recipient_address):
+def setup_sim_account(base_assets, erc20_abi, amount_from_wei, arb_bot, weth, router, recipient_address):
     """
     Sets up simulation account with 100 ETH worth of value for each baseAsset as specified in the config file.
 
     Params:
-        address (str): The public address of the sim account.
-        private_key (str): The private key of the sim account.
+        base_assets (list): a list of base assets for trading.
+        erc20_abi (str): the abi file for the erc20 token.
+        amount_from_wei (int): amount of token to fund, converted from wei.
+        arb_bot (ArbBot): an ArbBot instance. 
+        weth (Contract): Contract instance for the WETH token.
+        router (Contract): Contract instance for the router for trading base assets.
+        recipient_address: Recipient address of the returned base assets.
 
     Returns:
         balances (dict): balances of all tokens in a dictionary.
     """
+    btc_iCAN_address = '0x49AeF2C4005Bf572665b09014A563B5b9E46Df21'
+    btc_iCAN_contract = arb_bot.web3.eth.contract(address=btc_iCAN_address, abi=erc20_abi)
+
+    usdc_iCAN_address = '0xa9efDEf197130B945462163a0B852019BA529a66'
+    usdc_iCAN_contract = arb_bot.web3.eth.contract(address=usdc_iCAN_address, abi=erc20_abi)
+
+    send_ERC20(ArbBot("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"), recipient_address, btc_iCAN_contract, to_wei(50, 8))
+    send_ERC20(ArbBot("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"), recipient_address, usdc_iCAN_contract, to_wei(50, 6))
     unlimited_allowance = arb_bot.web3.to_wei(2**256 - 1, 'wei')
 
     # For every base asset, try to trade the same amount of ETH for the asset, and approve unlimited allowance of the asset on router. 
     for token in base_assets:
         token_address = token["address"]
         token_contract = arb_bot.web3.eth.contract(address=token_address, abi=erc20_abi)
-        assert swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth, token_contract, router, recipient_address) == 1, "Unexpected! Swap WETH-ERC20 failed!"
+        assert swap_ETH_for_ERC20(amount_from_wei, arb_bot, weth, token_contract, router, recipient_address) == 1, "Unexpected! Swap WETH-ERC20 failed!"
         approve_tokens(arb_bot.web3, token_contract, router.address, unlimited_allowance, arb_bot.private_key)
     return get_account_balances(arb_bot.web3, recipient_address)
 
 if __name__ == "__main__":
     whale_address = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' # the whale simulator address
     whale_private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' # private key of the whale simulator address
-    whale_arb_bot = ArbBot(500, 100, whale_private_key)
+    whale_arb_bot = ArbBot(whale_private_key)
 
     regular_trader_address = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
     regular_trader_key = '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
-    regular_trader_arb_bot = ArbBot(500, 100, regular_trader_key)
+    regular_trader_arb_bot = ArbBot(regular_trader_key)
     
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)

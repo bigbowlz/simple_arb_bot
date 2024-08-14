@@ -1,5 +1,6 @@
 from utilities.arb_bot import ArbBot
 from sims import (setup_sim_account, trading_sims)
+from utilities.trading_utilities import (send_ERC20)
 import json
 """
 Simulates whale trader activities on UniswapV2. 
@@ -14,7 +15,7 @@ Version: 08-14-2024
 if __name__ == "__main__":
     whale_address = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' # the whale simulator address
     whale_private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' # private key of the whale simulator address
-    whale_arb_bot = ArbBot(500, 100, whale_private_key)
+    whale_arb_bot = ArbBot(whale_private_key)
     
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
@@ -271,4 +272,4 @@ if __name__ == "__main__":
     end_time = start_time + duration
 
     # Transaction sent by the whale address through whale_arb_bot setup, trading between $5,000 and $100,000 in a single swap.
-    trading_sims(whale_arb_bot, 10_000, 1_000_000, end_time, 10, uniswap_router, base_assets, whale_address)
+    trading_sims(whale_arb_bot, 10_000, 1_000_000, end_time, 30, uniswap_router, base_assets, whale_address)

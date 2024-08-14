@@ -27,7 +27,7 @@ class ArbBot:
         min_profitBP (int): Basis point value of the minimum profitability accepted in a trade that's smaller than profit/(liquidity + gas).
         slippage_bufferBP (int): Basis point value of the slippage buffer percentage added for swaps.
     """
-    def __init__(self, min_profitBP, slippage_bufferBP, private_key, bot_address='0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94'):
+    def __init__(self, private_key, min_profitBP=500, slippage_bufferBP=100, bot_address='0x00B0517de6b2b09aBD3a7B69d66D85eFdb2c7d94'):
         """
         Initialize the ArbBot instance with the minimum profitability BP, the slippage buffer for swaps, the private key of the sender address, and the deployed arbitrage bot contract address.
 

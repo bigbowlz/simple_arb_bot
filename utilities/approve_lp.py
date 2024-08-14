@@ -14,9 +14,6 @@ Create pairs for two tokens and add liquidity for them on router.
 Author: ILnaw
 Version: 08-14-2024
 '''
-
-
-
 def create_pair(web3, factory_contract, tokenA, tokenB, private_key):
     """
     Creates a token pair tokenA - tokenB on the factory contract of a dex.
@@ -85,17 +82,17 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
     Add liquidity to the pool tokenA - tokenB on the router contract of a dex for a specified amount.
 
     Params:
-        web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
-        factory
-        router (Contract): Router contract instance of a dex.
-        token1 (Contract): contract instance of token1.
-        token2 (Contract): contract instance of token2.
-        amount_token1 (int): amount to add for token1.
-        amount_token2 (int): amount to add for token2.
-        private_key (str): private key of the signer.
+      web3 (Provider): a Provider instance to access blockchain. Takes JSON-RPC requests and returns the response.
+      factory (Contract): Contract instance of the router factory.
+      router (Contract): Router contract instance of a dex.
+      token1 (Contract): contract instance of token1.
+      token2 (Contract): contract instance of token2.
+      amount_token1 (int): amount to add for token1.
+      amount_token2 (int): amount to add for token2.
+      private_key (str): private key of the signer.
 
     Returns:
-        bool or receipt (receipt): False if any step fails, or receipt of the pair creation transaction.
+      bool or receipt (receipt): False if any step fails, or receipt of the pair creation transaction.
     """
     # Check if the pair exists
     pair_address = factory.functions.getPair(token1.address, token2.address).call()
@@ -108,7 +105,7 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
 
     # Approve tokens
     amount_token1_approve = to_wei(200, get_token_decimals(token1.address, web3)) 
-    amount_token2_approve = to_wei(10000000, get_token_decimals(token2.address, web3)) 
+    amount_token2_approve = to_wei(10_000_000, get_token_decimals(token2.address, web3)) 
 
     try:
         approve_tokens(web3, token1, router.address, amount_token1_approve, private_key)
@@ -474,14 +471,22 @@ if __name__ == "__main__":
     uniswap_factory = web3.eth.contract(address=uniswap_factory_address, abi=factory_abi)
     uniswap_router_address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
     uniswap_router_contract = web3.eth.contract(address=uniswap_router_address, abi=router_abi)
-
+    pancake_factory_address = "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
+    pancake_factory = web3.eth.contract(address=pancake_factory_address, abi=factory_abi)
+    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+    pancake_router_contract = web3.eth.contract(address=pancake_router_address, abi=router_abi)
     btc_iCAN_address = '0x49AeF2C4005Bf572665b09014A563B5b9E46Df21'
     btc_iCAN_contract = web3.eth.contract(address=btc_iCAN_address, abi=token_abi)
 
     usdc_iCAN_address = '0xa9efDEf197130B945462163a0B852019BA529a66'
     usdc_iCAN_contract = web3.eth.contract(address=usdc_iCAN_address, abi=token_abi)
-
+    print(f'''
+BTC iCAN symbol: {btc_iCAN_contract.functions.symbol().call()}
+USDC iCAN symbol: {usdc_iCAN_contract.functions.symbol().call()}
+          ''')
     amount_btc_lp = to_wei(100, 8)
     amount_usdc_lp = to_wei(5000000, 6)
 
+
     fund_pool(web3, uniswap_factory, uniswap_router_contract, btc_iCAN_contract, usdc_iCAN_contract, amount_btc_lp, amount_usdc_lp, private_key)
+    #fund_pool(web3, pancake_factory, pancake_router_contract, btc_iCAN_contract, usdc_iCAN_contract, amount_btc_lp, amount_usdc_lp, private_key)
