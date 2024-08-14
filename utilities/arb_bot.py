@@ -238,11 +238,11 @@ class ArbBot:
         """
 
         est_return = self.bot.functions.estimateTradeReturn(
-            _router1 = router1,
-            _router2 = router2,
-            _token1 = token1,
-            _token2 = token2,
-            _amount = amount).call()
+            router1,
+            router2,
+            token1,
+            token2,
+            amount).call()
         return est_return
 
     def get_balance(self, address):

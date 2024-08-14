@@ -111,6 +111,7 @@ if __name__ == "__main__":
 
     # create Router contract dict
     router_dict = {uniswap_router_address: uniswap_router, pancake_router_address: pancake_router}
+    
     # load Uniswap Factory abi
     with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
         factory_abi = json.load(factory_abi_file)
@@ -168,12 +169,18 @@ if __name__ == "__main__":
                  print("Profit target hit!")
                  time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
-                 if arb_bot.estimate_return(router1, router2, token1, token2) > token1_balance:
+                 time_tx_init = "estimate_return failed"
+                 time_tx_finalized = "executeTrade failed"
+                 txhash = "executeTrade failed"
+                 # determine sequence of trading venues through if else statements
+                 if arb_bot.estimate_return(router1.address, router2.address, token1, token2, token1_balance) > token1_balance:
                     time_tx_init = time.time()
-                    txhash = arb_bot.executeTrade(router1, router2, token1, token2, token1_balance)
+                    txhash = arb_bot.executeTrade(router1.address, router2.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
-                 elif arb_bot.estimate_return(router2, router1, token1, token2) > token1_balance:
-                    txhash = arb_bot.executeTrade(router2, router1, token1, token2, token1_balance)
+                 elif arb_bot.estimate_return(router2.address, router1.address, token1, token2, token1_balance) > token1_balance:
+                    time_tx_init = time.time()
+                    txhash = arb_bot.executeTrade(router2.address, router1.address, token1, token2, token1_balance)
+                    time_tx_finalized = time.time()
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
                  with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
