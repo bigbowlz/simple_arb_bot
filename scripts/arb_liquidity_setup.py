@@ -1,11 +1,8 @@
 from utilities.trading_utilities import (
     to_wei,
     from_wei,
-    sign_and_send_tx,
-    wrap_ETH_to_WETH,
-    swap_ERC20_for_ERC20,
-    approve_tokens,
-    get_token_decimals
+    send_ETH_to_Arb,
+    swap_ETH_for_ERC20
 )
 from utilities.arb_bot import ArbBot
 from utilities.trading_utilities import (get_account_balances)
@@ -20,64 +17,8 @@ initial ETH and ERC20 token liquidity in the contract.
 Author: ILnaw
 Version: 08-14-2024
 '''
-def send_ETH_to_Arb(arb_bot, amount):
-    """
-    Sends native ETH from sender account to the arb bot contract. 
-
-    Params:
-        arb_bot (ArbBot): an ArbBot contract instance.
-        amount (int): Amount in wei.
-
-    Returns:
-        tx_receipt (receipt): The receipt of the ETH transfer transaction.
-    """
-    print('Sending ETH from sender_address to arb contract...')
-    # Send ETH to Contract
-    tx = {
-        'from': arb_bot.sender_address,
-        'to': arb_bot.bot_address,
-        'value': to_wei(amount, 18), 
-        'gas': 400000, 
-        'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
-        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
-        'nonce': arb_bot.get_sender_nonce(),
-        'chainId': arb_bot.chain_id
-    }
-
-    # Sign and send the transaction
-    return sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
-
-def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, router_instance, recipient_address):
-    """
-    Swaps 1 native ETH to an ERC20 on a router by wrapping ETH->WETH, approving WETH, 
-    swapping WETH for ERC20, and sends the returned ERC20 to the recipient address. 
-
-    Params:
-        amount_in_ETH (int): amount in ETH to swap in.
-        arb_bot (ArbBot): an ArbBot contract instance.
-        weth_instance (Contract): a contract instance for WETH.
-        ERC20_instance (Contract): a contract instance for ERC20.
-        router_instance (Contract): a contract instance for the router.
-        recipient_address (str): the address of the recipient. 
-
-    Returns:
-        bool: True for a successful execution of the swap; False otherwise.
-    """
-    # Define swap parameters
-    amount_in_wei = to_wei(amount_in_ETH, 18)
-    wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance)
-    approve_tokens(arb_bot.web3, weth_instance, router_instance.address, amount_in_wei, arb_bot.private_key)
-    swap_receipt = swap_ERC20_for_ERC20(amount_in_wei, arb_bot, "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_instance.address, router_instance, recipient_address)
-
-    ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
-    token_symbol = ERC20_instance.functions.symbol().call()
-    balance_from_wei = from_wei(ERC20_balance_on_recipient, get_token_decimals(ERC20_instance.address, arb_bot.web3))
-    print(f"Current {token_symbol} balance on recipient address (int): {balance_from_wei} {token_symbol}")
-    return swap_receipt['status']
-
-
 if __name__ == "__main__":
-    arb_bot = ArbBot(500, 100, '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
+    arb_bot = ArbBot('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80')
     owner_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
     uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
