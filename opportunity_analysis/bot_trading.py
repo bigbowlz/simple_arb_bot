@@ -40,10 +40,16 @@ def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, token
     # Fetch reserves
     reserves_on_1 = pair_contract_1.functions.getReserves().call()
     reserve0_on_1, reserve1_on_1, _ = reserves_on_1
+#     print(f'''router1 liquidity: 
+# reserve0 - {reserve0_on_1}
+# reserve1 - {reserve1_on_1}''')
     price_on_router1 = reserve0_on_1 / reserve1_on_1
 
     reserves_on_2 = pair_contract_2.functions.getReserves().call()
     reserve0_on_2, reserve1_on_2, _ = reserves_on_2
+#     print(f'''router2 liquidity: 
+# reserve0 - {reserve0_on_2}
+# reserve1 - {reserve1_on_2}''')
     price_on_router2 = reserve0_on_2 / reserve1_on_2
     
     return (price_on_router2 - price_on_router1)/price_on_router1
@@ -95,7 +101,7 @@ if __name__ == "__main__":
     duration = arb_bot_config["duration"]
     start_time = arb_bot_config["start_time"]
     PRIVATE_KEY = arb_bot_config["PRIVATE_KEY"]
-    arb_bot = ArbBot(min_profitBP, slippage_bufferBP, PRIVATE_KEY)
+    arb_bot = ArbBot(PRIVATE_KEY, min_profitBP = min_profitBP, slippage_bufferBP = slippage_bufferBP)
 
     web3, data, api_key, api_url = setup()
 
@@ -141,8 +147,12 @@ if __name__ == "__main__":
             "time_opportunity_found", 
             "time_tx_init", 
             "time_tx_finalized", 
-            "amount_in", 
-            "amount_out", 
+            "base_asset",
+            "intermediate_asset",
+            "first_swap_router",
+            "second_swap_router",
+            "base_asset_balance_before_swap", 
+            "base_asset_balance_after_swap", 
             "txhash"
             ])
     
@@ -166,18 +176,31 @@ if __name__ == "__main__":
                  )
 
              if hit_profit_target(min_profitBP, slippage_bufferBP, 60, price_diff) == True:
-                 print("Profit target hit!")
+                 print(f'''Profit target hit! 
+Price diff is now {price_diff*100}% 
+for {token1} and {token2}
+between Uniswap and Pancake.''')
                  time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
-                 time_tx_init = "estimate_return failed"
+                 time_tx_init = "estimate_return below amount_in."
                  time_tx_finalized = "executeTrade failed"
                  txhash = "executeTrade failed"
+                 router_1 = "N/A"
+                 router_2 = "N/A"
                  # determine sequence of trading venues through if else statements
-                 if arb_bot.estimate_return(router1.address, router2.address, token1, token2, token1_balance) > token1_balance:
+                 trade_router1_then_router2 = arb_bot.estimate_return(router1.address, router2.address, token1, token2, token1_balance)
+                 print(f"amount difference after trading on router1 then router2: {trade_router1_then_router2 - token1_balance}")
+                 trade_router2_then_router1 = arb_bot.estimate_return(router2.address, router1.address, token1, token2, token1_balance)
+                 print(f"amount difference after trading on router2 then router1: {trade_router2_then_router1 - token1_balance}")
+                 if trade_router1_then_router2 > token1_balance:
+                    router_1 = router1.address
+                    router_2 = router2.address
                     time_tx_init = time.time()
                     txhash = arb_bot.executeTrade(router1.address, router2.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
-                 elif arb_bot.estimate_return(router2.address, router1.address, token1, token2, token1_balance) > token1_balance:
+                 elif trade_router2_then_router1 > token1_balance:
+                    router_1 = router2.address
+                    router_2 = router1.address
                     time_tx_init = time.time()
                     txhash = arb_bot.executeTrade(router2.address, router1.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
@@ -190,6 +213,10 @@ if __name__ == "__main__":
                          time_opportunity_found, 
                          time_tx_init, 
                          time_tx_finalized, 
+                         token1,
+                         token2,
+                         router_1,
+                         router_2,
                          token1_balance, # balance before the trade
                          arb_bot.get_balance(token1), # balance after the trade
                          txhash
