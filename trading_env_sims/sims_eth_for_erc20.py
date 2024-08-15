@@ -1,5 +1,4 @@
 from scripts.arb_liquidity_setup import (swap_ETH_for_ERC20)
-from utilities.arb_bot import ArbBot
 from utilities.trading_utilities import (get_account_balances, to_wei, approve_tokens, wrap_ETH_to_WETH, from_wei)
 import json
 import time
@@ -37,7 +36,7 @@ def trading_sims(arb_bot, eth_lower_bound, eth_upper_bound, end_time, interval, 
             "token_in", 
             "amount_in", 
             "token_out", 
-            "txhash"
+            "tx_receipt"
             ])
     with open("configs/token_ABIs/erc20_abi.json", "r") as erc20_abi_file:
         erc20_abi = json.load(erc20_abi_file)
@@ -48,12 +47,13 @@ def trading_sims(arb_bot, eth_lower_bound, eth_upper_bound, end_time, interval, 
         asset_contract = arb_bot.web3.eth.contract(address=asset_address, abi=erc20_abi)
 
         # Swap a random value within the trade bound of ETH for the base asset.
-        random_ETH_value_in_wei = to_wei(random.randint(eth_lower_bound, eth_upper_bound), 18)
+        random_ETH_value_in_wei = random.randint(eth_lower_bound, eth_upper_bound)
         print(f"Trying to trade ETH for {base_assets[random_asset_index]["sym"]} with {random_ETH_value_in_wei} wei in value.")
+
         try:
             swap_receipt = swap_ETH_for_ERC20(from_wei(random_ETH_value_in_wei, 18), arb_bot, asset_contract, router_instance, recipient_address)
             if swap_receipt['status'] == 1:
-                    print(f'''
+                print(f'''
     Account balances:
     {get_account_balances(arb_bot.web3, recipient_address)}
     ''') 
@@ -64,10 +64,10 @@ def trading_sims(arb_bot, eth_lower_bound, eth_upper_bound, end_time, interval, 
                     asset_address, 
                     random_ETH_value_in_wei, 
                     asset_address, 
-                    swap_receipt.transactionHash.hex()
-                ])
+                    swap_receipt
+                    ])
         except Exception as e:
-            print(f"Swap failed with {str(e)}")
+            print(f"Swap failed. with {str(e)}")
         
         time.sleep(interval)
  
@@ -86,16 +86,6 @@ def setup_sim_account(base_assets, erc20_abi, amount_from_wei, arb_bot, router, 
     Returns:
         balances (dict): balances of all tokens in a dictionary.
     """
-    # btc_iCAN_address = '0x49AeF2C4005Bf572665b09014A563B5b9E46Df21'
-    # btc_iCAN_contract = arb_bot.web3.eth.contract(address=btc_iCAN_address, abi=erc20_abi)
-
-    # usdc_iCAN_address = '0xa9efDEf197130B945462163a0B852019BA529a66'
-    # usdc_iCAN_contract = arb_bot.web3.eth.contract(address=usdc_iCAN_address, abi=erc20_abi)
-
-    # send_ERC20(ArbBot("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"), recipient_address, btc_iCAN_contract, to_wei(50, 8))
-    # send_ERC20(ArbBot("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"), recipient_address, usdc_iCAN_contract, to_wei(50, 6))
-    
-    # fund recipient with WETH
     try:
         wrap_ETH_to_WETH(to_wei(amount_from_wei, 18), arb_bot)
     except:

@@ -485,9 +485,10 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, ERC20_instance, router_instance, 
     """
     # avoid swapping ETH for WETH as it conflicts with path[0] on Uniswapv2 swapExactETHForTokens
     if ERC20_instance.address == "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2":
-        return 0
+        print("Can't swap ETH for WETH. Skipping.")
+        return {'status': 0}
     amount_in_wei = to_wei(amount_in_ETH, 18)
-    deadline = arb_bot.web3.eth.get_block('latest')['timestamp'] + 60 * 5  # 5 minutes from the current block
+    deadline = arb_bot.web3.eth.get_block('latest')['timestamp'] + 60 * 20 # 20 minutes from the current block
     path = [router_instance.functions.WETH().call(), ERC20_instance.address]
 
     # Prepare the transaction
@@ -498,13 +499,17 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, ERC20_instance, router_instance, 
         deadline
     ).build_transaction({
         'value': amount_in_wei,
-        'gas': 200000,  # Estimate this value correctly
+        'gas': 300000,  # Estimate this value correctly
         'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
-        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
+        'maxPriorityFeePerGas': arb_bot.web3.to_wei('20', 'gwei'),
         'nonce': arb_bot.get_sender_nonce(),
     })
     swap_receipt = sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
-    
+    print('''
+    ****************************
+    *       Swap success!      *
+    ****************************
+          ''')
     # Print the return token balance on recipient.
     ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
     token_symbol = ERC20_instance.functions.symbol().call()

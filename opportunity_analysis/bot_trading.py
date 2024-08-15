@@ -105,18 +105,22 @@ if __name__ == "__main__":
 
     web3, data, api_key, api_url = setup()
 
-    # create UniswapV2Router instance
+    # create UniswapV2 Router instance
     uniswap_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     with open("configs/router_ABIs/UniswapV2Router02_abi.json", "r") as file:
         uniswap_router_abi = json.load(file)
     uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
 
-    # create SushiRouter instance
+    # create Sushi Router instance
     sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
     sushi_router = arb_bot.web3.eth.contract(address=sushi_router_address, abi=uniswap_router_abi)
 
+    # create Pancake Router instance
+    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+    pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
+
     # create Router contract dict
-    router_dict = {uniswap_router_address: uniswap_router, sushi_router_address: sushi_router}
+    router_dict = {uniswap_router_address: uniswap_router, sushi_router_address: sushi_router, pancake_router_address: pancake_router}
     
     # load Uniswap Factory abi
     with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
@@ -153,7 +157,7 @@ if __name__ == "__main__":
             "second_swap_router",
             "base_asset_balance_before_swap", 
             "base_asset_balance_after_swap", 
-            "txhash"
+            "tx_receipt"
             ])
     
     # Run the bot for the specified duration
@@ -184,7 +188,7 @@ between Uniswap and Sushi.''')
                  token1_balance = arb_bot.get_balance(token1)
                  time_tx_init = "estimate_return below amount_in."
                  time_tx_finalized = "executeTrade failed"
-                 txhash = "executeTrade failed"
+                 tx_receipt = "executeTrade failed"
                  router_1 = "N/A"
                  router_2 = "N/A"
                  # determine sequence of trading venues through if else statements
@@ -192,35 +196,37 @@ between Uniswap and Sushi.''')
                  print(f"amount difference after trading on router1 then router2: {trade_router1_then_router2 - token1_balance}")
                  trade_router2_then_router1 = arb_bot.estimate_return(router2.address, router1.address, token1, token2, token1_balance)
                  print(f"amount difference after trading on router2 then router1: {trade_router2_then_router1 - token1_balance}")
+
                  if trade_router1_then_router2 > token1_balance:
                     router_1 = router1.address
                     router_2 = router2.address
                     time_tx_init = time.time()
-                    txhash = arb_bot.executeTrade(router1.address, router2.address, token1, token2, token1_balance)
+                    tx_receipt = arb_bot.execute_trade(router1.address, router2.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
                  elif trade_router2_then_router1 > token1_balance:
                     router_1 = router2.address
                     router_2 = router1.address
                     time_tx_init = time.time()
-                    txhash = arb_bot.execute_trade(router2.address, router1.address, token1, token2, token1_balance)
+                    tx_receipt = arb_bot.execute_trade(router2.address, router1.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
-                 with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
-                     writer = csv.writer(file)
-                     writer.writerow([
-                         price_diff, 
-                         time_opportunity_found, 
-                         time_tx_init, 
-                         time_tx_finalized, 
-                         token1,
-                         token2,
-                         router_1,
-                         router_2,
-                         token1_balance, # balance before the trade
-                         arb_bot.get_balance(token1), # balance after the trade
-                         txhash
-                         ])
+                 if tx_receipt != "executeTrade failed":
+                     with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([
+                            price_diff, 
+                            time_opportunity_found, 
+                            time_tx_init, 
+                            time_tx_finalized, 
+                            token1,
+                            token2,
+                            router_1,
+                            router_2,
+                            token1_balance, # balance before the trade
+                            arb_bot.get_balance(token1), # balance after the trade
+                            tx_receipt
+                            ])
              # Sleep for a short duration to avoid busy-waiting in CPU
              time.sleep(1)
     print(f"Completed bot operations for {int(duration/60)} minutes.")

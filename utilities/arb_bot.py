@@ -210,17 +210,29 @@ class ArbBot:
         Returns:
             none
         """
-        tx = self.bot.functions.executeTrade(
+        receipt = "N/A"
+        try:
+            tx = self.bot.functions.executeTrade(
             router1, router2, token1, token2, amount
-            ).build_transaction(self.build_tx('executeTrade', router1, router2, token1, token2, amount))
-        
-        receipt = sign_and_send_tx(self.web3, tx, self.private_key)
-        
-        if receipt['status'] == 1:
-            print("executeTrade() succeeded! Arb trade completed.")
-        else:
+            ).build_transaction({
+                'chainId': self.chain_id,
+                'gas': 320173,
+                'maxFeePerGas': self.get_max_feePerGas()*2,
+                'nonce': self.get_sender_nonce()
+            })
+
+            receipt = sign_and_send_tx(self.web3, tx, self.private_key)
+            print('''
+    ****************************
+    *         Success!         *
+    *   Arb trade completed.   *
+    ****************************
+''')
+
+        except:
             print("executeTrade() failed! Arb trade failed.")
-        return receipt.transactionHash.hex()
+
+        return receipt
     
     def estimate_return(self, router1, router2, token1, token2, amount):
         """

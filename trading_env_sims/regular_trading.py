@@ -1,4 +1,5 @@
 from utilities.arb_bot import ArbBot
+from utilities.trading_utilities import (to_wei)
 from sims_eth_for_erc20 import (trading_sims)
 import json
 """
@@ -37,4 +38,4 @@ if __name__ == "__main__":
     end_time = start_time + duration
 
     # Transaction sent by the regular trader address through regular_trader_arb_bot setup, trading between $11 and $2,000 in a single swap.
-    trading_sims(regular_trader_arb_bot, 11, 2_000, end_time, 2, uniswap_router, base_assets, regular_trader_address)
+    trading_sims(regular_trader_arb_bot, to_wei(0.004, 18), to_wei(0.67, 18), end_time, 2, uniswap_router, base_assets, regular_trader_address)
