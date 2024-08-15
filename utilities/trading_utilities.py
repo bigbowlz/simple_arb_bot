@@ -338,7 +338,7 @@ def approve_tokens(web3, token_contract, spender_address, amount, private_key):
     tx = token_contract.functions.approve(spender_address, amount).build_transaction({
         'from': owner_address,
         'nonce': web3.eth.get_transaction_count(owner_address),
-        'gas': 200000,
+        'gas': 800000,
         'maxFeePerGas': web3.to_wei('20', 'gwei')
     })
     
@@ -373,18 +373,21 @@ def get_estimated_return(web3, router_instance, amount_in, token_in, token_out):
     
     return amounts_out # returns the amount in wei
 
-def wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance):
+def wrap_ETH_to_WETH(amount_in_wei, arb_bot):
     """
     Wraps ETH to WETH in sender_address.
 
     Params:
         amount_in_wei (int): amount in wei to swap in.
         arb_bot (ArbBot): an ArbBot contract instance with the sender address as the owner.
-        weth_instance (Contract): a contract instance for WETH.
 
     Returns:
         wrap_tx_receipt (dict): receipt of the wrapping transaction.
     """
+    with open("configs/token_ABIs/erc20_abi.json", "r") as erc20_abi_file:
+        erc20_abi = json.load(erc20_abi_file)
+    weth_instance = arb_bot.web3.eth.contract(address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", abi=erc20_abi)
+
     wrap_tx = weth_instance.functions.deposit().build_transaction({
         'chainId': arb_bot.chain_id,
         'gas': 400000,
@@ -465,7 +468,7 @@ def send_ETH_to_Arb(arb_bot, amount):
     # Sign and send the transaction
     return sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
 
-def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, router_instance, recipient_address):
+def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, ERC20_instance, router_instance, recipient_address):
     """
     Swaps 1 native ETH to an ERC20 on a router by wrapping ETH->WETH, approving WETH, 
     swapping WETH for ERC20, and sends the returned ERC20 to the recipient address. 
@@ -473,7 +476,6 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, ro
     Params:
         amount_in_ETH (int): amount in ETH to swap in.
         arb_bot (ArbBot): an ArbBot contract instance.
-        weth_instance (Contract): a contract instance for WETH.
         ERC20_instance (Contract): a contract instance for ERC20.
         router_instance (Contract): a contract instance for the router.
         recipient_address (str): the address of the recipient. 
@@ -481,16 +483,34 @@ def swap_ETH_for_ERC20(amount_in_ETH, arb_bot, weth_instance, ERC20_instance, ro
     Returns:
         bool: True for a successful execution of the swap; False otherwise.
     """
-    # Define swap parameters
+    # avoid swapping ETH for WETH as it conflicts with path[0] on Uniswapv2 swapExactETHForTokens
+    if ERC20_instance.address == "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2":
+        return 0
     amount_in_wei = to_wei(amount_in_ETH, 18)
-    wrap_ETH_to_WETH(amount_in_wei, arb_bot, weth_instance)
-    approve_tokens(arb_bot.web3, weth_instance, router_instance.address, amount_in_wei, arb_bot.private_key)
-    swap_receipt = swap_ERC20_for_ERC20(amount_in_wei, arb_bot, "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", ERC20_instance.address, router_instance, recipient_address)
+    deadline = arb_bot.web3.eth.get_block('latest')['timestamp'] + 60 * 5  # 5 minutes from the current block
+    path = [router_instance.functions.WETH().call(), ERC20_instance.address]
 
+    # Prepare the transaction
+    tx = router_instance.functions.swapExactETHForTokens(
+        0,
+        path,
+        recipient_address,
+        deadline
+    ).build_transaction({
+        'value': amount_in_wei,
+        'gas': 200000,  # Estimate this value correctly
+        'maxFeePerGas': arb_bot.web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
+        'maxPriorityFeePerGas': arb_bot.web3.to_wei('2', 'gwei'),
+        'nonce': arb_bot.get_sender_nonce(),
+    })
+    swap_receipt = sign_and_send_tx(arb_bot.web3, tx, arb_bot.private_key)
+    
+    # Print the return token balance on recipient.
     ERC20_balance_on_recipient = ERC20_instance.functions.balanceOf(recipient_address).call()
     token_symbol = ERC20_instance.functions.symbol().call()
     balance_from_wei = from_wei(ERC20_balance_on_recipient, get_token_decimals(ERC20_instance.address, arb_bot.web3))
     print(f"Current {token_symbol} balance on recipient address (int): {balance_from_wei} {token_symbol}")
+
     return swap_receipt['status']
 
 def send_ERC20(arb_bot, recipient_address, ERC20_contract, amount):

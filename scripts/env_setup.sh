@@ -25,11 +25,11 @@ if lsof -i:$PORT; then
     checksum="python utilities/populate_routes.py --checksum"
     compile="npx hardhat compile" # Compile contracts 
     deploy="npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost" #Deploy the arbitrage contract and test tokens USDC iCAN and BTC iCAN
-    pool="python utilities/approve_lp.py" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
+    setup_trader_liq="python trading_env_sims/setup_trader_liq.py" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
     abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap and SushiSwap)
     route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
-    setup_liq="python scripts/arb_liquidity_setup.py" # Set up liquidity for all baseAssets in the arb contract
-    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${pool} && ${abi} && ${route} && ${setup_liq}"
+    setup_bot_liq="python scripts/arb_liquidity_setup.py" # Set up liquidity for all baseAssets in the arb contract
+    commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${setup_trader_liq} && ${abi} && ${route} && ${setup_bot_liq}"
 
     # Open a new shell and run the commands
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -43,7 +43,7 @@ if lsof -i:$PORT; then
             npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && \
             npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && \
             npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost && \
-            python utilities/approve_lp.py && \
+            python utilities/approve_lp_iCAN.py && \
             python3 utilities/populate_routes.py --ABI && \
             python3 utilities/populate_routes.py --route && \ 
             python scripts/arb_liquidity_setup.py

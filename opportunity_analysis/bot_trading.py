@@ -202,7 +202,7 @@ between Uniswap and Sushi.''')
                     router_1 = router2.address
                     router_2 = router1.address
                     time_tx_init = time.time()
-                    txhash = arb_bot.executeTrade(router2.address, router1.address, token1, token2, token1_balance)
+                    txhash = arb_bot.execute_trade(router2.address, router1.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.

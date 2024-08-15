@@ -180,23 +180,24 @@ def check_route(router1_name, router1_address, router2_name, router2_address, to
         web3: an instance of the Web3 class from the web3.py library.
     '''
 
-    # Load router1 and router2 ABI
-    with open('configs/router_ABIs/' + router1_name + '_abi.json', 'r') as router1_abi_file:
-        router1_abi = json.load(router1_abi_file)
-    with open('configs/router_ABIs/' + router2_name + '_abi.json', 'r') as router2_abi_file:
-        router2_abi = json.load(router2_abi_file)
+    # Load router ABI
+    with open('configs/router_ABIs/UniswapV2Router02_abi.json', 'r') as router_abi_file:
+        router_abi = json.load(router_abi_file)
+    with open('configs/token_ABIs/erc20_abi.json', 'r') as token_abi_file:
+        token_abi = json.load(token_abi_file)
 
-    # Create contract instances for the routers
-    router1 = web3.eth.contract(address=router1_address, abi=router1_abi)
-    router2 = web3.eth.contract(address=router2_address, abi=router2_abi)
+    # Create contract instances for the routers and tokens
+    router1 = web3.eth.contract(address=router1_address, abi=router_abi)
+    router2 = web3.eth.contract(address=router2_address, abi=router_abi)
+    token1 = web3.eth.contract(address=token1_address, abi=token_abi)
+    token2 = web3.eth.contract(address=token2_address, abi=token_abi)
 
     # Check if the route is valid on both routers
     is_valid_on_router1 = is_valid_pair(router1, token1_address, token2_address, web3)
     is_valid_on_router2 = is_valid_pair(router2, token1_address, token2_address, web3)
 
     if is_valid_on_router1 and is_valid_on_router2:
-        print(f"Route valid on {router1_name} and {router2_name}")
-        print(f"..for {token1_address} and {token2_address}")
+        print(f"Route valid on {router1_name} and {router2_name} for {token1.functions.symbol().call()} and {token2.functions.symbol().call()}")
         return True
     return False
 

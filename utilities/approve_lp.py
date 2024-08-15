@@ -1,13 +1,12 @@
 from utilities.populate_routes import (
     setup,
-    get_token_decimals
     )
 import time
 import json
 from utilities.trading_utilities import (to_wei, sign_and_send_tx, approve_tokens)
 
 '''
-approve_lp.py
+approve_lp_iCAN.py
 
 Create pairs for two tokens and add liquidity for them on router.
 
@@ -114,19 +113,19 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
         print(f"Error while trying to approve tokens: {e}")
         return False
     try:
-        return add_liquidity(
+        add_liquidity_receipt = add_liquidity(
             web3,
             router, 
             token1, 
             token2, 
             amount_token1, 
             amount_token2, 
-            int(amount_token1*0.8), 
-            int(amount_token2*0.8),
+            int(amount_token1*0.3), 
+            int(amount_token2*0.3),
             private_key)
-    except Exception as e:
-        print(f"Error while trying to create pool: {e}")
-        return False
+    except Exception:
+        print(f"Error while trying to add liquidity:")
+        return add_liquidity_receipt
 
 if __name__ == "__main__":
     
