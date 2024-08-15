@@ -62,7 +62,7 @@ def trading_sims(arb_bot, trade_lower_bound, trade_upper_bound, end_time, interv
                 random_USDT_value, 
                 token_in=usdt_address, 
                 token_out=asset_1_address
-                )[-1]
+                )
             
         if isinstance(amount_in_wei, int):
             print(f"Trying to trade {base_assets[random_asset_1_index]["sym"]} for {base_assets[random_asset_2_index]["sym"]} with {amount_in_wei} in value.")

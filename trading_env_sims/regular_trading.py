@@ -251,15 +251,17 @@ if __name__ == "__main__":
         uniswap_router_abi = json.load(file)
     uniswap_router = regular_trader_arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
 
+    sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+    sushi_router = regular_trader_arb_bot.web3.eth.contract(address=sushi_router_address, abi=uniswap_router_abi)
     weth_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     weth_abi = '''[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]'''
     weth = regular_trader_arb_bot.web3.eth.contract(address=weth_address, abi=weth_abi)
 
-    # regular trader holds ~$15k worth of each asset in account
+    # regular trader holds ~$15k ETH worth of each asset traded from SushiSwap in account
     print("Setting up regular trader account...")
     print(f'''
     Regular trader account balances:
-    {setup_sim_account(base_assets, erc20_abi, 5, regular_trader_arb_bot, weth, uniswap_router, regular_trader_address)}
+    {setup_sim_account(base_assets, erc20_abi, 5, regular_trader_arb_bot, weth, sushi_router, regular_trader_address)}
     ''') 
 
     # Loads ArbBot configs to get end_time of the simulation.
@@ -271,4 +273,4 @@ if __name__ == "__main__":
     end_time = start_time + duration
 
     # Transaction sent by the regular trader address through regular_trader_arb_bot setup, trading between $11 and $5,000 in a single swap.
-    trading_sims(regular_trader_arb_bot, 11, 5_000, end_time, 1, uniswap_router, base_assets, regular_trader_address)
+    trading_sims(regular_trader_arb_bot, 11, 5_000, end_time, 2, uniswap_router, base_assets, regular_trader_address)

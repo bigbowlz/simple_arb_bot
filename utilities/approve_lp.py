@@ -28,16 +28,15 @@ def create_pair(web3, factory_contract, tokenA, tokenB, private_key):
     Returns:
         receipt (receipt): receipt of the pair creation transaction.
     """
-    tx = factory_contract.functions.createPair(tokenA, tokenB).build_transaction({
-        'from': web3.eth.accounts[0],
-        'nonce': web3.eth.get_transaction_count(web3.eth.accounts[0]),
+    tx = factory_contract.functions.createPair(tokenA.address, tokenB.address).build_transaction({
+        'nonce': web3.eth.get_transaction_count(web3.eth.account.from_key(private_key).address),
         'gas': 3000000,
         'maxFeePerGas': web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
         'maxPriorityFeePerGas': web3.to_wei('2', 'gwei')
     })
     
     receipt = sign_and_send_tx(web3, tx, private_key)
-    print(f"Pair created: {tokenA} - {tokenB}")
+    print(f"Pair created: {tokenA.functions.symbol().call()} - {tokenB.functions.symbol().call()}")
     return receipt
 
 def add_liquidity(web3, router_contract, tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, private_key):
@@ -61,10 +60,9 @@ def add_liquidity(web3, router_contract, tokenA, tokenB, amountADesired, amountB
     deadline = int(time.time()) + 60 * 20  # 20 minutes from now
 
     tx = router_contract.functions.addLiquidity(
-        tokenA.address, tokenB.address, amountADesired, amountBDesired, amountAMin, amountBMin, web3.eth.accounts[0], deadline
+        tokenA.address, tokenB.address, amountADesired, amountBDesired, amountAMin, amountBMin, web3.eth.account.from_key(private_key).address, deadline
     ).build_transaction({
-        'from': web3.eth.accounts[0],
-        'nonce': web3.eth.get_transaction_count(web3.eth.accounts[0]),
+        'nonce': web3.eth.get_transaction_count(web3.eth.account.from_key(private_key).address),
         'gas': 1000000,
         'maxFeePerGas': web3.to_wei('100', 'gwei'),  # Adjust these values according to network conditions
         'maxPriorityFeePerGas': web3.to_wei('2', 'gwei')
@@ -98,14 +96,16 @@ def fund_pool(web3, factory, router, token1, token2, amount_token1, amount_token
     pair_address = factory.functions.getPair(token1.address, token2.address).call()
     if pair_address == '0x0000000000000000000000000000000000000000':
         try:
-            create_pair(web3, factory, token1.address, token2.address, private_key)
+            create_pair(web3, factory, token1, token2, private_key)
         except Exception as e:
             print(f"Error while trying to create pair: {e}")
             return False
+    else:
+        print(f'Pair already exists: {token1.functions.symbol().call()} - {token2.functions.symbol().call()}')
 
     # Approve tokens
-    amount_token1_approve = to_wei(200, get_token_decimals(token1.address, web3)) 
-    amount_token2_approve = to_wei(10_000_000, get_token_decimals(token2.address, web3)) 
+    amount_token1_approve = amount_token1
+    amount_token2_approve = amount_token2
 
     try:
         approve_tokens(web3, token1, router.address, amount_token1_approve, private_key)

@@ -369,7 +369,7 @@ def get_estimated_return(web3, router_instance, amount_in, token_in, token_out):
     amounts_out = router_instance.functions.getAmountsOut(
         amount_in_wei,
         [token_in, token_out]
-    ).call()
+    ).call()[-1]
     
     return amounts_out # returns the amount in wei
 
