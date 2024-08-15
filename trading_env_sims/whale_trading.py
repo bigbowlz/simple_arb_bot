@@ -48,15 +48,20 @@ def LP_base_pairs_for_all_routers(routers, base_assets, arb_bot):
                 token1_contract = arb_bot.web3.eth.contract(address=token1_address, abi=erc20_abi)
                 token2_contract = arb_bot.web3.eth.contract(address=token2_address, abi=erc20_abi)
                 token1_balance = token1_contract.functions.balanceOf(arb_bot.sender_address).call()
+                token2_balance = token2_contract.functions.balanceOf(arb_bot.sender_address).call()
                 amount_token1 = int(token1_balance/10)
-                amount_token2 = get_estimated_return(
-                    arb_bot.web3,
-                    router_contract,
-                    amount_token1,
-                    token1_address,
-                    token2_address)
-                print(f'amount_token1: {amount_token1}')
-                print(f'amount_token2: {amount_token2}')
+                amount_token2 = int(token2_balance/10)
+                # try:
+                #     amount_token2 = get_estimated_return(
+                #         arb_bot.web3,
+                #         router_contract,
+                #         amount_token1,
+                #         token1_address,
+                #         token2_address)
+                # except:
+                #     print(f'Estimating return failed from {token1_contract.functions.symbol().call()} to {token2_contract.functions.symbol().call()}.')
+                print(f'amount_token1 to fund: {amount_token1}')
+                print(f'amount_token2 to fund: {amount_token2}')
 
                 # create pair for each baseAsset pair and fund router with balances 
                 fund_pool(
@@ -319,15 +324,15 @@ if __name__ == "__main__":
     weth_abi = '''[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]'''
     weth = whale_arb_bot.web3.eth.contract(address=weth_address, abi=weth_abi)
 
-    # whale trader holds ~$1.2m ETH worth of each asset traded from SushiSwap in account
+    # whale trader holds ~$600k ETH worth of each asset traded from SushiSwap in account
     print(f'''Setting up whale account...
 Whale account balances:
-{setup_sim_account(base_assets, erc20_abi, 400, whale_arb_bot, weth, sushi_router, whale_address)}
+{setup_sim_account(base_assets, erc20_abi, 200, whale_arb_bot, weth, sushi_router, whale_address)}
 ''') 
 
-#     print(f'''LPing all routers with liquidity for all base asset pairs...
-# Whale account balances after LP: 
-# {LP_base_pairs_for_all_routers(data["routers"], data["baseAssets"], whale_arb_bot)}''')
+    print(f'''LPing all routers with liquidity for all base asset pairs...
+Whale account balances after LP: 
+{LP_base_pairs_for_all_routers(data["routers"], data["baseAssets"], whale_arb_bot)}''')
 
     # Loads ArbBot configs to get end_time of the simulation.
     with open('opportunity_analysis/arb_bot_config.json', 'r') as arb_bot_config_file:
@@ -338,4 +343,4 @@ Whale account balances:
     end_time = start_time + duration
 
     # Transaction sent by the whale address through whale_arb_bot setup, trading between $50,000 and $100,000 in a single swap.
-    trading_sims(whale_arb_bot, 50_000, 100_000, end_time, 5, uniswap_router, base_assets, whale_address)
+    trading_sims(whale_arb_bot, 10_000, 50_000, end_time, 5, uniswap_router, base_assets, whale_address)

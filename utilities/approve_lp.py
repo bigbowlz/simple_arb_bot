@@ -471,10 +471,10 @@ if __name__ == "__main__":
     uniswap_factory = web3.eth.contract(address=uniswap_factory_address, abi=factory_abi)
     uniswap_router_address = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
     uniswap_router_contract = web3.eth.contract(address=uniswap_router_address, abi=router_abi)
-    pancake_factory_address = "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
-    pancake_factory = web3.eth.contract(address=pancake_factory_address, abi=factory_abi)
-    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
-    pancake_router_contract = web3.eth.contract(address=pancake_router_address, abi=router_abi)
+    sushi_factory_address = "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
+    sushi_factory = web3.eth.contract(address=sushi_factory_address, abi=factory_abi)
+    sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+    sushi_router_contract = web3.eth.contract(address=sushi_router_address, abi=router_abi)
     btc_iCAN_address = '0x49AeF2C4005Bf572665b09014A563B5b9E46Df21'
     btc_iCAN_contract = web3.eth.contract(address=btc_iCAN_address, abi=token_abi)
 
@@ -489,4 +489,4 @@ USDC iCAN symbol: {usdc_iCAN_contract.functions.symbol().call()}
 
 
     fund_pool(web3, uniswap_factory, uniswap_router_contract, btc_iCAN_contract, usdc_iCAN_contract, amount_btc_lp, amount_usdc_lp, private_key)
-    #fund_pool(web3, pancake_factory, pancake_router_contract, btc_iCAN_contract, usdc_iCAN_contract, amount_btc_lp, amount_usdc_lp, private_key)
+    #fund_pool(web3, sushi_factory, sushi_router_contract, btc_iCAN_contract, usdc_iCAN_contract, amount_btc_lp, amount_usdc_lp, private_key)

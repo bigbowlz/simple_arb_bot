@@ -111,12 +111,12 @@ if __name__ == "__main__":
         uniswap_router_abi = json.load(file)
     uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
 
-    # create PancakeRouter instance
-    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
-    pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
+    # create SushiRouter instance
+    sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+    sushi_router = arb_bot.web3.eth.contract(address=sushi_router_address, abi=uniswap_router_abi)
 
     # create Router contract dict
-    router_dict = {uniswap_router_address: uniswap_router, pancake_router_address: pancake_router}
+    router_dict = {uniswap_router_address: uniswap_router, sushi_router_address: sushi_router}
     
     # load Uniswap Factory abi
     with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
                  print(f'''Profit target hit! 
 Price diff is now {price_diff*100}% 
 for {token1} and {token2}
-between Uniswap and Pancake.''')
+between Uniswap and Sushi.''')
                  time_opportunity_found = time.time()
                  token1_balance = arb_bot.get_balance(token1)
                  time_tx_init = "estimate_return below amount_in."

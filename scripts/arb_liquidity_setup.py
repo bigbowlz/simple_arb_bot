@@ -26,8 +26,8 @@ if __name__ == "__main__":
         uniswap_router_abi = json.load(file)
     uniswap_router = arb_bot.web3.eth.contract(address=uniswap_router_address, abi=uniswap_router_abi)
 
-    pancake_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
-    pancake_router = arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
+    sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+    pancake_router = arb_bot.web3.eth.contract(address=sushi_router_address, abi=uniswap_router_abi)
 
     erc20_abi = '''
     [
@@ -312,7 +312,7 @@ Withdrawing all ETH balance...''')
 
     # test executeTrade, test pending
     # try:
-    #     arb_bot.execute_trade(uniswap_router.address, pancake_router.address, usdc.address, usdt.address, 150)
+    #     arb_bot.execute_trade(uniswap_router.address, sushi_router.address, usdc.address, usdt.address, 150)
 
     # except Exception as e:
     #     print(f"Error while trying to execute arb trade: {e}")

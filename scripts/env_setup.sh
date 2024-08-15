@@ -26,7 +26,7 @@ if lsof -i:$PORT; then
     compile="npx hardhat compile" # Compile contracts 
     deploy="npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost" #Deploy the arbitrage contract and test tokens USDC iCAN and BTC iCAN
     pool="python utilities/approve_lp.py" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
-    abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap, PancakeSwap, and SushiSwap)
+    abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap and SushiSwap)
     route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
     setup_liq="python scripts/arb_liquidity_setup.py" # Set up liquidity for all baseAssets in the arb contract
     commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${pool} && ${abi} && ${route} && ${setup_liq}"

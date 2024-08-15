@@ -5,7 +5,7 @@ import json
 Simulates regular trader activities on UniswapV2. 
 The regular trader account holds ~$15k worth of each baseAsset in the config file.
 Every 3 seconds, the regular trader trades a random baseAsset for another random baseAsset 
-for a random value between $11 and $5,000 in a single swap.
+for a random value between $11 and $2,000 in a single swap.
 
 Author: ILnaw
 Version: 08-14-2024
@@ -272,5 +272,5 @@ if __name__ == "__main__":
     start_time = arb_bot_config["start_time"]
     end_time = start_time + duration
 
-    # Transaction sent by the regular trader address through regular_trader_arb_bot setup, trading between $11 and $5,000 in a single swap.
-    trading_sims(regular_trader_arb_bot, 11, 5_000, end_time, 2, uniswap_router, base_assets, regular_trader_address)
+    # Transaction sent by the regular trader address through regular_trader_arb_bot setup, trading between $11 and $2,000 in a single swap.
+    trading_sims(regular_trader_arb_bot, 11, 2_000, end_time, 2, uniswap_router, base_assets, regular_trader_address)
