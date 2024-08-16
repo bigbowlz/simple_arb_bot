@@ -1,5 +1,6 @@
 from utilities.populate_routes import (setup)
 from utilities.arb_bot import ArbBot
+from utilities.trading_utilities import (get_account_balances)
 import json
 import time
 import csv
@@ -120,8 +121,8 @@ if __name__ == "__main__":
     with open("configs/factory_ABIs/UniswapV2Factory_abi.json", "r") as factory_abi_file:
         factory_abi = json.load(factory_abi_file)
         print("factory_abi read from json file.")
-
-    uniswap_v2_pair_abi = [
+        
+        uniswap_v2_pair_abi = [
         {
             "constant": True,
             "inputs": [],
@@ -157,7 +158,19 @@ if __name__ == "__main__":
     # Run the bot for the specified duration
     print("Bot setup complete. Monitoring on-chain opportunites...")
     while time.time() - start_time < duration:
-	    for viable_route in data["routes"]:
+        arb_trades = {}
+        trade_count = 0 # the number of arb trades sent on-chain
+        net_profit = 0 #  net_profit = balance after trades - balance before trades - gas fees
+        bot_balance_dict = get_account_balances(arb_bot.web3, arb_bot.bot_address) # investment in all assets initially
+        print(bot_balance_dict)
+        bot_balances = 2589.50 * 10 # traded 10 ETH for the base assets
+        
+        print(f'bot balances: {bot_balances}')
+        profit_per_trade = 0
+        winning_trades_count = 0
+        losing_trades_count = 0
+        success_count = 0
+        for viable_route in data["routes"]:
              token1 = viable_route["token1"]
              token2 = viable_route["token2"]
              router1 = router_dict[viable_route["router1"]]
@@ -209,6 +222,29 @@ between Uniswap and Sushi.''')
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
                  if tx_receipt != "executeTrade failed":
+                     trade_count += 1
+                     #arb_trades["receipt"] = tx_receipt # add new successful arb trade receipt into the list
+                     
+                     # get the net_profit so far
+                     for asset in data["baseAssets"]:
+                        if asset["address"] == token1:
+                            token1_wei_price = asset["price"] 
+                            break
+                     token_1_balance_after = arb_bot.get_balance(token1) # balance after the trade
+                     gas_cost = tx_receipt['gasUsed'] * tx_receipt['effectiveGasPrice'] * 2.60687E-15
+                     trade_profit = (token_1_balance_after - token1_balance)*token1_wei_price - gas_cost
+                     net_profit += trade_profit
+                     arb_trades["net_profit"] = net_profit 
+
+                     return_on_investment = round(net_profit/bot_balances, 2) # roi = net_profit/total investments, rounded to 2 decimal places
+                     arb_trades["roi"] = return_on_investment
+
+                     arb_trades["profit_per_trade"] = round(net_profit/trade_count, 2)
+                    
+                     if tx_receipt["status"] == 1:
+                        success_count += 1
+                     arb_trades["success_rate"] = success_count/trade_count
+                     
                      with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow([
@@ -221,9 +257,10 @@ between Uniswap and Sushi.''')
                             router_1,
                             router_2,
                             token1_balance, # balance before the trade
-                            arb_bot.get_balance(token1), # balance after the trade
+                            token_1_balance_after, # balance after the trade
                             tx_receipt
                             ])
+                     print(arb_trades)
              # Sleep for a short duration to avoid busy-waiting in CPU
              time.sleep(1)
     print(f"Completed bot operations for {int(duration/60)} minutes.")

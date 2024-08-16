@@ -37,10 +37,10 @@ Notes: focus on creating **different scenarios** in my scripts of procedural tra
 The performance of the strategy is determined with the following four metrics.
 1. **Profitability**
     - **Net Profit:** Calculate the total profits after deducting all costs, including transaction fees, gas fees, and any other operational costs. Net Profit = BalanceAfter - BalanceBefore.
-    - **Return on Investment (ROI):** ROI = (Net Profit / Total Investment) * 100%. This measures the efficiency of the investment. Specifically, total investment refers to all liquidity provided to the arb contract as well as gas.
+    - **Return on Investment (ROI):** ROI = (Net Profit / Total Investment) * 100%. This measures the efficiency of the investment. Specifically, total investment refers to all liquidity provided to the arb contract as well as gas. In the actual implementation, as gas is supplied from a test account with unlimited ETH and is unable to factor in, it is omitted in the ROI calculation.
     - **Profit per Trade:** Average profit per arbitrage opportunity.
 2. **Success Rate**
-    - **Winning Trades vs. Losing Trades:** The ratio of profitable trades to unprofitable trades. Losing trades include both trades that execute on exchanges with a net loss, and trades that fail to execute on exchanges but incur gas costs.
+    - **Winning Trades vs. All Trades:** The ratio of profitable trades to all trades. Losing trades include both trades that execute on exchanges with a net loss, and trades that fail to execute on exchanges but incur gas costs.
 3. **Execution Speed**
     - **Analysis Latency:** Time taken to detect and execute an arbitrage opportunity.  
     - **On-chain Execution Time:** The time between placing the order and the order getting executed, which reflects gas price competitiveness and serves gas optimization reference.

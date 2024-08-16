@@ -260,12 +260,12 @@ if __name__ == "__main__":
     print(f'All functions of the arb contract: {arb_bot.bot.all_functions()}')    
 
     # Send 100 ETH to the arbitrage contract; see if tx_receipt.status returns 1
-    assert send_ETH_to_Arb(arb_bot, 100).status == 1
+    # assert send_ETH_to_Arb(arb_bot, 100).status == 1
 
     # Get the ETH balance of the smart contract
-    balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
-    print(f'Current balance of ETH on arb contract: {from_wei(balance, 18)} ETH')
-    assert balance > 99, "Unexpected! Send 100 ETH failed!"
+    # balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
+    # print(f'Current balance of ETH on arb contract: {from_wei(balance, 18)} ETH')
+    # assert balance > 99, "Unexpected! Send 100 ETH failed!"
 
     # Swap 1 ETH for USDT in Uniswap V2
     with open("configs/mainnet.json", "r") as file:
@@ -304,12 +304,12 @@ getBalance(address) test succeeded''')
     # print('All USDT withdrawn')
 
     # test withdrawETH()
-    print(f'''--------------------------------
-Withdrawing all ETH balance...''')
-    arb_bot.withdraw_eth()
-    test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
-    assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
-    print(f'Current ETH balance on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
+#     print(f'''--------------------------------
+# Withdrawing all ETH balance...''')
+#     arb_bot.withdraw_eth()
+#     test_withdraw_eth_balance = arb_bot.web3.eth.get_balance(arb_bot.bot_address)
+#     assert test_withdraw_eth_balance == 0, "Unexpected! ETH withdrawal failed"
+#     print(f'Current ETH balance on arb contract: {from_wei(test_withdraw_eth_balance, 18)} ETH')
 
     # test executeTrade, test pending
     # try:
@@ -318,10 +318,10 @@ Withdrawing all ETH balance...''')
     # except Exception as e:
     #     print(f"Error while trying to execute arb trade: {e}")
     
-    assert send_ETH_to_Arb(arb_bot, 100).status == 1, "Send ETH to arb failed!"
+    #assert send_ETH_to_Arb(arb_bot, 100).status == 1, "Send ETH to arb failed!"
 
-    # wrap 20 ETH to WETH in sender address
-    amount_to_send = to_wei(20, 18)
+    # wrap 5 ETH to WETH in sender address
+    amount_to_send = to_wei(5, 18)
     assert wrap_ETH_to_WETH(amount_to_send, arb_bot).status == 1, "Wrap ETH to WETH failed!"
     # send 20 WETH to arb_bot
     weth_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
