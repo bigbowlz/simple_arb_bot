@@ -24,7 +24,15 @@ def log_balance_to_csv(arb_bot, end_time, interval):
     """
     with open("performance_monitor/balance_logs.csv", mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp", "ETH", "USDT", "USDC", "WBTC", "SHIB", "DAI"])
+        writer.writerow([
+            "Timestamp", 
+            "ETH", 
+            "WETH",
+            "USDT", 
+            "USDC", 
+            "WBTC", 
+            "SHIB", 
+            "DAI"])
         
     while time.time() < end_time:
         with open("performance_monitor/balance_logs.csv", mode='a', newline='') as file:
@@ -34,6 +42,7 @@ def log_balance_to_csv(arb_bot, end_time, interval):
             writer.writerow([
                 current_time, 
                 balances["ETH"], 
+                balances["WETH"],
                 balances["USDT"],
                 balances["USDC"],
                 balances["WBTC"],

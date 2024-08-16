@@ -1,6 +1,6 @@
 from utilities.arb_bot import ArbBot
 from utilities.trading_utilities import (get_account_balances)
-from sims_eth_for_erc20 import (setup_sim_account)
+from trading_env_sims.sim_utilities import (setup_sim_account)
 from utilities.approve_lp import (fund_pool)
 import json
 """
@@ -70,7 +70,7 @@ def LP_base_pairs_for_all_routers(routers, base_assets, arb_bot):
                 print("---------------------------")
     return get_account_balances(arb_bot.web3, arb_bot.sender_address) 
 if __name__ == "__main__":
-    regular_trader_address = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
+    regular_trader_address = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' # the regular trader simulator address
     regular_trader_key = '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
     regular_trader_arb_bot = ArbBot(regular_trader_key)
 
@@ -78,6 +78,14 @@ if __name__ == "__main__":
     whale_private_key = '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d' # private key of the whale simulator address
     whale_arb_bot = ArbBot(whale_private_key)
     
+    regular_trader_erc20_address = '0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65' # the regular trader erc20 simulator address
+    regular_trader_erc20_key = '0x47e179ec197488593b187f80a00eb0da91f1b9d0b13f8733639f19c30a34926a'
+    regular_trader_erc20_arb_bot = ArbBot(regular_trader_erc20_key)
+
+    whale_erc20_address = '0x90F79bf6EB2c4f870365E785982E1f101E93b906' # the whale erc20 simulator address
+    whale_erc20_private_key = '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6' # private key of the whale_erc20 simulator address
+    whale_erc20_arb_bot = ArbBot(whale_erc20_private_key)
+
     with open("configs/mainnet.json", "r") as file:
         data = json.load(file)
     print("Data read from json file.")
@@ -319,18 +327,32 @@ if __name__ == "__main__":
     pancake_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
     pancake_router = regular_trader_arb_bot.web3.eth.contract(address=pancake_router_address, abi=uniswap_router_abi)
     
-    # regular trader holds ~$15k ETH worth of each asset traded from Pancake in account
+    # regular trader holds ~$15k ETH worth of each asset traded from sushi_router in account
     print("Setting up regular trader account...")
     print(f'''
 Regular trader account balances:
 {setup_sim_account(base_assets, erc20_abi, 5, regular_trader_arb_bot, sushi_router, regular_trader_address)}
 ''') 
+    
+    # regular erc20 trader holds ~$15k ETH worth of each asset traded from uniswap_router in account
+    print("Setting up regular erc20 trader account...")
+    print(f'''
+Regular erc20 trader account balances:
+{setup_sim_account(base_assets, erc20_abi, 5, regular_trader_erc20_arb_bot, uniswap_router, regular_trader_erc20_address)}
+''') 
 
-    # whale trader holds ~$600k ETH worth of each asset traded from Pancake in account
+    # whale trader holds ~$300k ETH worth of each asset traded from sushi_router in account
     print(f"Setting up whale account...")
     print(f'''
 Whale account balances:
-{setup_sim_account(base_assets, erc20_abi, 200, whale_arb_bot, sushi_router, whale_address)}
+{setup_sim_account(base_assets, erc20_abi, 100, whale_arb_bot, sushi_router, whale_address)}
+''') 
+    
+    # whale erc20 trader holds ~$300k ETH worth of each asset traded from uniswap_router in account
+    print(f"Setting up whale erc20 account...")
+    print(f'''
+Whale account balances:
+{setup_sim_account(base_assets, erc20_abi, 100, whale_erc20_arb_bot, uniswap_router, whale_erc20_address)}
 ''') 
 
     print(f'LPing all routers with liquidity for all base asset pairs...')

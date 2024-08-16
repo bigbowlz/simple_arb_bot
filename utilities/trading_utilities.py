@@ -364,13 +364,15 @@ def get_estimated_return(web3, router_instance, amount_in, token_in, token_out):
     """
     # Convert the amount to the correct units (e.g., from ETH to wei)
     amount_in_wei = web3.to_wei(amount_in, 'ether')
-    
+    amounts_out = "N/A"
     # Call the `getAmountsOut` function
-    amounts_out = router_instance.functions.getAmountsOut(
-        amount_in_wei,
-        [token_in, token_out]
-    ).call()[-1]
-    
+    try: 
+        amounts_out = router_instance.functions.getAmountsOut(
+            amount_in_wei,
+            [token_in, token_out]
+        ).call()[-1]
+    except:
+        print(f"The router getAmountsOut function failed for {token_in} to {token_out}")
     return amounts_out # returns the amount in wei
 
 def wrap_ETH_to_WETH(amount_in_wei, arb_bot):
@@ -403,7 +405,7 @@ def wrap_ETH_to_WETH(amount_in_wei, arb_bot):
 
 def swap_ERC20_for_ERC20(amount_in_wei, arb_bot, ERC20_address_1, ERC20_address_2, router_instance, recipient_address):
     """
-    Swaps WETH in sender_address to ERC20 on router, and sends the ERC20 to a recipient address.
+    Swaps ERC20 in sender_address to ERC20 on router, and sends the returned ERC20 to a recipient address.
 
     Params:
         amount_in_wei (int): amount in wei to swap in.

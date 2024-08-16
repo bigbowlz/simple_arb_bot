@@ -8,6 +8,7 @@
 /opportunity_analysis/arb_bot_config.json
 /trading_env_sims/*.csv
 /trading_env_sims/sims.py
+Experiment Logs/
 
 # Hardhat files
 /contract_factory/cache

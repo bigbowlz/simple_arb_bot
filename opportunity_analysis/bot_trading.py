@@ -40,16 +40,10 @@ def get_price_diff(web3, uniswap_v2_pair_abi, factory_abi, tokenA_address, token
     # Fetch reserves
     reserves_on_1 = pair_contract_1.functions.getReserves().call()
     reserve0_on_1, reserve1_on_1, _ = reserves_on_1
-#     print(f'''router1 liquidity: 
-# reserve0 - {reserve0_on_1}
-# reserve1 - {reserve1_on_1}''')
     price_on_router1 = reserve0_on_1 / reserve1_on_1
 
     reserves_on_2 = pair_contract_2.functions.getReserves().call()
     reserve0_on_2, reserve1_on_2, _ = reserves_on_2
-#     print(f'''router2 liquidity: 
-# reserve0 - {reserve0_on_2}
-# reserve1 - {reserve1_on_2}''')
     price_on_router2 = reserve0_on_2 / reserve1_on_2
     
     return (price_on_router2 - price_on_router1)/price_on_router1
@@ -209,6 +203,9 @@ between Uniswap and Sushi.''')
                     time_tx_init = time.time()
                     tx_receipt = arb_bot.execute_trade(router2.address, router1.address, token1, token2, token1_balance)
                     time_tx_finalized = time.time()
+                 else:
+                     print('''Abort trade! Negative return.
+                           ''')
 
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
                  if tx_receipt != "executeTrade failed":

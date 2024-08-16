@@ -22,9 +22,9 @@ def config_bot(private_key):
     else:
         min_profitBP = int(input("Min profitability target in bps: "))
 
-    use_default_slippage_bufferBP = input("Use default slippage_bufferBP (100 bps)? (y/n)")
+    use_default_slippage_bufferBP = input("Use default slippage_bufferBP (1000 bps)? (y/n)")
     if use_default_slippage_bufferBP in ["y", "Y", "yes", "Yes"]:
-        slippage_bufferBP = 100
+        slippage_bufferBP = 1000
     else:
         slippage_bufferBP = int(input("Slippage buffer in bps:"))
 
