@@ -33,6 +33,7 @@ Notes: focus on creating **different scenarios** in my scripts of procedural tra
 1. different roles: regular traders; competing bots; liquidity movements from liquidity providers; whale traders; or,
 2. different categories of interactions: trading; liquidity movements; *pool creation/deletion;*
 (focusing on breadth so might have tradeoffs on the depth of the different scenarios; should list the limitations and future iteration plans of the implementation);
+
 ### Key Performance Metrics
 The performance of the strategy is determined with the following four metrics.
 1. **Profitability**
@@ -47,10 +48,3 @@ The performance of the strategy is determined with the following four metrics.
 4. **Capital Utilization**
     - **Trade Volume:** The total volume of trades executed by the bot.
 	- **Capital Efficiency (not included in demo):** Percentage of available capital actively used in arbitrage opportunities, calculated with averageLiquidity/totalLiquidity. This does not factor in gas. This metric is not included in the demo as the account balances are arbitrary due to a test environment.
-
-**Performance Standard to add:**
-Good values that I should be striving for; hard numbers;
-Profitability: reference numbers;
-Execution speed: no reference; 
-
-Scoping!
