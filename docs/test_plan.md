@@ -45,13 +45,12 @@ The performance of the strategy is determined with the following four metrics.
     - **Analysis Latency:** Time taken to detect and execute an arbitrage opportunity.  
     - **On-chain Execution Time:** The time between placing the order and the order getting executed, which reflects gas price competitiveness and serves gas optimization reference.
 4. **Capital Utilization**
-    - **Capital Efficiency:** Percentage of available capital actively used in arbitrage opportunities, calculated with averageLiquidity/totalLiquidity. This does not factor in gas.
     - **Trade Volume:** The total volume of trades executed by the bot.
+	- **Capital Efficiency (not included in demo):** Percentage of available capital actively used in arbitrage opportunities, calculated with averageLiquidity/totalLiquidity. This does not factor in gas. This metric is not included in the demo as the account balances are arbitrary due to a test environment.
 
 **Performance Standard to add:**
 Good values that I should be striving for; hard numbers;
 Profitability: reference numbers;
 Execution speed: no reference; 
-Capitalization: no reference;
 
 Scoping!

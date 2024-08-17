@@ -81,7 +81,7 @@ def trading_sims_eth_for_erc20(
  
 def setup_sim_account(base_assets, erc20_abi, amount_from_wei, arb_bot, router, recipient_address):
     """
-    Sets up simulation account with 100 ETH worth of value for each baseAsset as specified in the config file.
+    Sets up simulation account with 100 ETH worth of value for each baseAsset as specified in configs/mainnet.json.
 
     Params:
         base_assets (list): a list of base assets for trading.

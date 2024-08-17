@@ -12,7 +12,7 @@ Version: 08-14-2024
 """
 def LP_base_pairs_for_all_routers(routers, base_assets, arb_bot):
     """
-        Provide liquidity for all baseAsset pairs on all routers in the config file using 10% of the balance on account.
+        Provide liquidity for all baseAsset pairs on all routers in configs/mainnet.json using 10% of the balance on account.
 
         Params:
             routers (list): a list of routers. Each router is a dict of a "dex" key and an "address" key.
@@ -351,7 +351,7 @@ Whale account balances:
     # whale erc20 trader holds ~$300k ETH worth of each asset traded from uniswap_router in account
     print(f"Setting up whale erc20 account...")
     print(f'''
-Whale account balances:
+Whale erc20 account balances:
 {setup_sim_account(base_assets, erc20_abi, 100, whale_erc20_arb_bot, uniswap_router, whale_erc20_address)}
 ''') 
 

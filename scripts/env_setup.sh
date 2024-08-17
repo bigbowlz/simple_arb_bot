@@ -27,7 +27,7 @@ if lsof -i:$PORT; then
     deploy="npx hardhat ignition deploy ./ignition/modules/arbitrage.js --network localhost && npx hardhat ignition deploy ./ignition/modules/BTC.js --network localhost && npx hardhat ignition deploy ./ignition/modules/USDC.js --network localhost" #Deploy the arbitrage contract and test tokens USDC iCAN and BTC iCAN
     setup_trader_liq="python trading_env_sims/setup_trader_liq.py" # Approve USDC iCAN and BTC iCAN for routers and create a liquidity pool
     abi="python utilities/populate_routes.py --ABI" # Generate ABI files for on-chain router contracts (Uniswap and SushiSwap)
-    route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in the config file to find valid routes
+    route="python utilities/populate_routes.py --route" # Iterate through tokens and routers in configs/mainnet.json to find valid routes
     setup_bot_liq="python scripts/arb_liquidity_setup.py" # Set up liquidity for all baseAssets in the arb contract
     commands="cd ${current_dir} && ${checksum} && ${compile} && ${deploy} && ${setup_trader_liq} && ${abi} && ${route} && ${setup_bot_liq}"
 

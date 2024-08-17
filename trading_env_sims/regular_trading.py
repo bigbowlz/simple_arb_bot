@@ -3,8 +3,8 @@ from utilities.trading_utilities import (to_wei)
 from trading_env_sims.sim_utilities import (trading_sims_eth_for_erc20)
 import json
 """
-Simulates regular trader activities on UniswapV2. 
-The regular trader account holds ~$15k worth of each baseAsset in the config file.
+Simulates regular trader activities on SushiSwap. 
+The regular trader account holds ~$15k worth of each baseAsset listed in configs/mainnet.json.
 Every second, the regular trader trades ETH for another random baseAsset 
 for a random value between $300 and $9,000 in a single swap.
 

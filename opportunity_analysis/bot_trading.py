@@ -142,34 +142,39 @@ if __name__ == "__main__":
     with open("performance_monitor/trade_logs_bot.csv", mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([
+            "net_profit($)", 
+            "profit_per_trade($)",
+            "net_roi",
+            "success_rate",
+            "total_trade_volume_usd($)",
+            "trade_profit($)",
+            "analysis_latency(ms)",
+            "on_chain_execution_time(ms)",
             "price_diff", 
-            "time_opportunity_found", 
-            "time_tx_init", 
-            "time_tx_finalized", 
+            "time_opportunity_found(s)", 
+            "time_tx_init(s)", 
+            "time_tx_finalized(s)", 
             "base_asset",
             "intermediate_asset",
             "first_swap_router",
             "second_swap_router",
-            "base_asset_balance_before_swap", 
-            "base_asset_balance_after_swap", 
+            "base_asset_balance_before_swap(wei)", 
+            "base_asset_balance_after_swap(wei)", 
             "tx_receipt"
             ])
     
     # Run the bot for the specified duration
     print("Bot setup complete. Monitoring on-chain opportunites...")
+    bot_balances = 2589.50 * 10 # traded 10 ETH for the base assets
+    print(f'bot initial balances: ${bot_balances}')
+    trade_count = 0 # the number of arb trades sent on-chain
+    net_profit = 0 #  net_profit = balance after trades - balance before trades - gas fees
+    total_trade_volume_usd = 0
+    profit_per_trade = 0
+    winning_trades_count = 0
+    losing_trades_count = 0
+    success_count = 0
     while time.time() - start_time < duration:
-        arb_trades = {}
-        trade_count = 0 # the number of arb trades sent on-chain
-        net_profit = 0 #  net_profit = balance after trades - balance before trades - gas fees
-        bot_balance_dict = get_account_balances(arb_bot.web3, arb_bot.bot_address) # investment in all assets initially
-        print(bot_balance_dict)
-        bot_balances = 2589.50 * 10 # traded 10 ETH for the base assets
-        
-        print(f'bot balances: {bot_balances}')
-        profit_per_trade = 0
-        winning_trades_count = 0
-        losing_trades_count = 0
-        success_count = 0
         for viable_route in data["routes"]:
              token1 = viable_route["token1"]
              token2 = viable_route["token2"]
@@ -223,31 +228,33 @@ between Uniswap and Sushi.''')
                  # Write trade performance data into the csv file each time a dual-dex trade tx is initiated.
                  if tx_receipt != "executeTrade failed":
                      trade_count += 1
-                     #arb_trades["receipt"] = tx_receipt # add new successful arb trade receipt into the list
-                     
-                     # get the net_profit so far
                      for asset in data["baseAssets"]:
                         if asset["address"] == token1:
                             token1_wei_price = asset["price"] 
                             break
+                     total_trade_volume_usd += token1_balance * token1_wei_price
                      token_1_balance_after = arb_bot.get_balance(token1) # balance after the trade
                      gas_cost = tx_receipt['gasUsed'] * tx_receipt['effectiveGasPrice'] * 2.60687E-15
                      trade_profit = (token_1_balance_after - token1_balance)*token1_wei_price - gas_cost
-                     net_profit += trade_profit
-                     arb_trades["net_profit"] = net_profit 
-
+                     net_profit += trade_profit # get the net_profit so far
+                     profit_per_trade = round(net_profit/trade_count, 2)
                      return_on_investment = round(net_profit/bot_balances, 2) # roi = net_profit/total investments, rounded to 2 decimal places
-                     arb_trades["roi"] = return_on_investment
-
-                     arb_trades["profit_per_trade"] = round(net_profit/trade_count, 2)
-                    
+                     analysis_latency = (time_tx_init - time_opportunity_found) * 1000 # convert to ms
+                     on_chain_execution_time = (time_tx_finalized - time_tx_init) * 1000 # convert to ms
                      if tx_receipt["status"] == 1:
                         success_count += 1
-                     arb_trades["success_rate"] = success_count/trade_count
-                     
+                     success_rate = round(success_count/trade_count, 2)
                      with open("performance_monitor/trade_logs_bot.csv", mode='a', newline='') as file:
                         writer = csv.writer(file)
                         writer.writerow([
+                            net_profit,
+                            profit_per_trade, 
+                            return_on_investment,
+                            success_rate, 
+                            total_trade_volume_usd,
+                            trade_profit,
+                            analysis_latency, # Time taken to detect and execute an arbitrage opportunity.
+                            on_chain_execution_time, # The time between placing the order and the order getting executed, which reflects gas price competitiveness and serves gas optimization reference.
                             price_diff, 
                             time_opportunity_found, 
                             time_tx_init, 
@@ -260,7 +267,25 @@ between Uniswap and Sushi.''')
                             token_1_balance_after, # balance after the trade
                             tx_receipt
                             ])
-                     print(arb_trades)
+                        
+                        print(f'''
+PROFITABILITY
+    -- Net Profit:          ${net_profit}
+    -- Net ROI:             {return_on_investment*100}%
+    -- Profit per Trade:    ${profit_per_trade}
+
+SUCCESS RATE
+    -- Winning Chance:      {success_rate*100}%
+    -- Winning Trade Count: {success_count}
+    -- Total Trade Count:   {trade_count}                         
+
+EXECUTION SPEED
+    -- Analysis Latency:    {analysis_latency}ms
+    -- On-chain execution:  {on_chain_execution_time}ms
+
+CAPITAL UTILIZATION
+    -- Trade Volume:        ${total_trade_volume_usd}
+''')
              # Sleep for a short duration to avoid busy-waiting in CPU
              time.sleep(1)
     print(f"Completed bot operations for {int(duration/60)} minutes.")

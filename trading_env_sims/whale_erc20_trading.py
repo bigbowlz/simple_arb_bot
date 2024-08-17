@@ -4,7 +4,7 @@ from trading_env_sims.sim_utilities import (trading_sims_erc20_for_erc20)
 import json
 """
 Simulates whale trader activities on UniswapV2. 
-The whale account holds ~$300k worth of each baseAsset in the config file.
+The whale account holds ~$300k worth of each baseAsset listed in configs/mainnet.json.
 Every 5 seconds, the whale trades a random baseAsset for another random baseAsset 
 for a random value between $30,000 and $100,000 in a single swap.
 
